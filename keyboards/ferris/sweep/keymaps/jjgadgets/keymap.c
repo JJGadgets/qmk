@@ -10,11 +10,11 @@
  * edit it directly.
  */
 
-enum layer_names = {
+enum layer_names {
     _DEFAULT,
     _NUM,
-    _FM
-}
+    _FM,
+};
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_DEFAULT] = LAYOUT_split_3x5_2(
