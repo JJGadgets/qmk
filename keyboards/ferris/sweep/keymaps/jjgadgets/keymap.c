@@ -10,24 +10,30 @@
  * edit it directly.
  */
 
+enum layer_names = {
+    _DEFAULT,
+    _NUM,
+    _FM
+}
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    [0] = LAYOUT_split_3x5_2(
+    [_DEFAULT] = LAYOUT_split_3x5_2(
         KC_Q, KC_W, KC_F, KC_P, KC_G,                           KC_J, KC_L, KC_U, KC_Y, KC_COLON,
         KC_A, KC_R, KC_S, KC_T, KC_D,                           KC_H, KC_N, KC_E, KC_I, KC_O,
         KC_Z, KC_X, RALT_T(KC_C), RGUI_T(KC_V), KC_B,           KC_K, KC_M, KC_COMM, KC_DOT, KC_SLSH,
-        LCTL_T(KC_ESC), LSFT_T(KC_SPC), MEH_T(KC_BSPC), LT(1, QK_REP)
+        LCTL_T(KC_ESC), LSFT_T(KC_SPC),                         MEH_T(KC_BSPC), LT(_NUM, QK_REP)
     ),
-    [1] = LAYOUT_split_3x5_2(
+    [_NUM] = LAYOUT_split_3x5_2(
         KC_GRV, KC_1, KC_2, KC_3, KC_COMM,                      KC_BSLS, KC_HOME, KC_UP, KC_END, KC_DEL,
         KC_ENTER, KC_4, KC_5, KC_6, KC_DOT,                     KC_TAB, KC_LEFT, KC_DOWN, KC_RIGHT, KC_QUOTE,
         LT(2, KC_CAPS), KC_7, KC_8, KC_9, KC_0,                 KC_LBRC, KC_RBRC, KC_MINUS, KC_EQUAL, KC_PSCR,
-        LCTL_T(TG(1)), LSFT_T(KC_SPC), MEH_T(KC_BSPC), KC_TRNS
+        LCTL_T(TG(_NUM)), LSFT_T(KC_SPC),                       MEH_T(KC_BSPC), KC_TRNS
     ),
-    [2] = LAYOUT_split_3x5_2(
+    [_FN] = LAYOUT_split_3x5_2(
         KC_LALT, KC_F1, KC_F2, KC_F3, KC_F10,                   KC_NO, KC_NO, KC_NO, KC_NO, LCA(KC_DEL),
         KC_LGUI, KC_F4, KC_F5, KC_F6, KC_F11,                   KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
         KC_TRNS, KC_F7, KC_F8, KC_F9, KC_F12,                   KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
-        TO(0), KC_NO, KC_NO, TO(2)
+        TO(_DEFAULT), KC_NO,                                    KC_NO, TO(_FN)
     )
 };
 
@@ -37,7 +43,7 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
         case LCTL_T(KC_ESC):
         case LSFT_T(KC_SPC):
         case MEH_T(KC_BSPC):
-        case LT(1, QK_REP):
+        case LT(_NUM, QK_REP):
             // Immediately select the hold action when another key is pressed.
             return true;
         default:
@@ -50,7 +56,7 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
         case LCTL_T(KC_ESC):
         case LSFT_T(KC_SPC):
         case MEH_T(KC_BSPC):
-        case LT(1, QK_REP):
+        case LT(_NUM, QK_REP):
             // Do not select the hold action when another key is tapped.
             return false;
         default:
@@ -63,7 +69,7 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         case LCTL_T(KC_ESC):
         case LSFT_T(KC_SPC):
         case MEH_T(KC_BSPC):
-        case LT(1, QK_REP):
+        case LT(_NUM, QK_REP):
             return 200;
         default:
             return 280;
@@ -74,7 +80,7 @@ uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t *record) {
         case LCTL_T(KC_ESC):
         case LSFT_T(KC_SPC):
         case MEH_T(KC_BSPC):
-        case LT(1, QK_REP):
+        case LT(_NUM, QK_REP):
             return 200;
         default:
             return 175;
@@ -125,7 +131,7 @@ bool pre_process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 // key overrides (mod morphs)
-const key_override_t alt_tab_morph = ko_make_with_layers(MOD_BIT(KC_RALT), KC_A, LALT(KC_TAB), 0);
+const key_override_t alt_tab_morph = ko_make_with_layers(MOD_BIT(KC_RALT), KC_A, LALT(KC_TAB), 1 << _DEFAULT);
 const key_override_t colon_morph = ko_make_basic(MOD_MASK_SHIFT, KC_COLON, KC_SCLN);
 // This globally defines all key overrides to be used
 const key_override_t *key_overrides[] = {
