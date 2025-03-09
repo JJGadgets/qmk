@@ -1,17 +1,21 @@
 #pragma once
 
 #define EE_HANDS
-#define MASTER_LEFT
+/*#define MASTER_LEFT*/
 // detect master based on location of USB rather than voltage detection, thank my cheap ass Pro Micro for that :(
-/*#define SPLIT_USB_DETECT*/
+#define SPLIT_USB_DETECT
 /*#define SPLIT_USB_TIMEOUT 2000*/
 
 // default but used in macros
 #undef TAPPING_TERM
-#define TAPPING_TERM 200
+#define TAPPING_TERM_PER_KEY
+#define QUICK_TAP_TERM_PER_KEY
+#define PERMISSIVE_HOLD_PER_KEY
+#define HOLD_ON_OTHER_KEY_PRESS_PER_KEY
+#define CHORDAL_HOLD
 
-// Enable rapid switch from tap to hold, disables double tap hold auto-repeat.
-#define TAPPING_FORCE_HOLD
+/*// Enable rapid switch from tap to hold, disables double tap hold auto-repeat.*/
+/*#define TAPPING_FORCE_HOLD*/
 
 // Auto Shift
 #define NO_AUTO_SHIFT_ALPHA
