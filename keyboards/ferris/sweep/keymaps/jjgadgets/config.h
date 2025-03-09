@@ -22,6 +22,11 @@
 #define AUTO_SHIFT_TIMEOUT TAPPING_TERM
 #define AUTO_SHIFT_NO_SETUP
 
+// Neutralized keycode
+#define DUMMY_MOD_NEUTRALIZER_KEYCODE KC_F18
+// Neutralize key override mods (so a key override doesn't trigger the tap of these mods)
+#define MODS_TO_NEUTRALIZE { MOD_BIT(KC_RALT), }
+
 /*// Mouse key speed and acceleration.*/
 /*#undef MOUSEKEY_DELAY*/
 /*#define MOUSEKEY_DELAY          0*/

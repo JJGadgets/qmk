@@ -132,15 +132,11 @@ const key_override_t *key_overrides[] = {
 	&alt_tab_morph,
     &colon_morph,
 };
-// Neutralized keycode
-#define DUMMY_MOD_NEUTRALIZER_KEYCODE KC_RIGHT_CTRL
-// Neutralize key override mods (so a key override doesn't trigger the tap of these mods)
-#define MODS_TO_NEUTRALIZE { MOD_BIT(KC_RALT), }
 
 // combos
 const uint16_t PROGMEM combo_enter[] = {KC_N, KC_E, KC_I, COMBO_END};
 // This globally defines all combos to be used
-const combo_t key_combos[] = {
+combo_t key_combos[] = {
     COMBO(combo_enter, KC_ENTER),
 };
 
