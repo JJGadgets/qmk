@@ -18,7 +18,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set current date as env variable
-        run: echo "NOW=$(date +'%Y-%m-%dT%H%M%S')" >> $GITHUB_ENV
+        id: date
+        run: |
+            echo "NOW=$(date +'%Y-%m-%dT%H%M%S')" >> $GITHUB_OUTPUT
+    outputs:
+      date: "${{ steps.date.outputs.NOW }}"
 
   publish:
     name: 'QMK Userspace Publish'
@@ -26,4 +30,5 @@ jobs:
     if: always() && !cancelled()
     needs: build
     with:
-      release_name: "${{ env.NOW }}" #-${{ github.sha }}"
+      release_name: "${{ needs.date.outputs.date }}"
+#-${{ github.sha }}"
