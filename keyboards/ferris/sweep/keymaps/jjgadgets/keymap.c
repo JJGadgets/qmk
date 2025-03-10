@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include QMK_KEYBOARD_H
 #if __has_include("keymap.h")
 #    include "keymap.h"
@@ -38,54 +39,54 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 // hold-tap config
+/*#define HT_CASE(thekeycode, thumb, letters) ( \*/
+/*    switch (thekeycode) { \*/
+/*        case LCTL_T(KC_ESC): \*/
+/*        case LSFT_T(KC_SPC): \*/
+/*        case MEH_T(KC_BSPC): \*/
+/*        case LT(_NUM, QK_REP): \*/
+/*            return thumb; \*/
+/*        default: \*/
+/*            return letters; \*/
+/*    }; \*/
+/*)*/
+bool HT_CASE_BOOL(uint16_t thekeycode, bool thumb, bool letters) {
+    switch (thekeycode) {
+        case LCTL_T(KC_ESC):
+        case LSFT_T(KC_SPC):
+        case MEH_T(KC_BSPC):
+        case LT(_NUM, QK_REP):
+            return thumb;
+        default:
+            return letters;
+    };
+};
+uint16_t HT_CASE_INT(uint16_t thekeycode, uint16_t thumb, uint16_t letters) {
+    switch (thekeycode) {
+        case LCTL_T(KC_ESC):
+        case LSFT_T(KC_SPC):
+        case MEH_T(KC_BSPC):
+        case LT(_NUM, QK_REP):
+            return thumb;
+        default:
+            return letters;
+    };
+};
 bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case LCTL_T(KC_ESC):
-        case LSFT_T(KC_SPC):
-        case MEH_T(KC_BSPC):
-        case LT(_NUM, QK_REP):
-            // Immediately select the hold action when another key is pressed.
-            return true;
-        default:
-            // Do not select the hold action when another key is pressed.
-            return false;
-    }
-}
+    return HT_CASE_BOOL(keycode, true, false);
+    /*return HT_CASE(keycode, true, false);*/
+};
 bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case LCTL_T(KC_ESC):
-        case LSFT_T(KC_SPC):
-        case MEH_T(KC_BSPC):
-        case LT(_NUM, QK_REP):
-            // Do not select the hold action when another key is tapped.
-            return false;
-        default:
-            // Immediately select the hold action when another key is tapped.
-            return true;
-    }
-}
+    return HT_CASE_BOOL(keycode, true, false);
+};
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case LCTL_T(KC_ESC):
-        case LSFT_T(KC_SPC):
-        case MEH_T(KC_BSPC):
-        case LT(_NUM, QK_REP):
-            return 200;
-        default:
-            return 280;
-    }
-}
+    return HT_CASE_INT(keycode, 200, 280);
+};
 uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case LCTL_T(KC_ESC):
-        case LSFT_T(KC_SPC):
-        case MEH_T(KC_BSPC):
-        case LT(_NUM, QK_REP):
-            return 200;
-        default:
-            return 175;
-    }
-}
+    return HT_CASE_INT(keycode, 200, 175);
+};
+#include <require-prior-idle-ms.c>
+#define REQUIRE_PRIOR_IDLE_MS 150
 const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
     LAYOUT(
         'L', 'L', 'L', 'L', 'L',  'R', 'R', 'R', 'R', 'R',
@@ -94,44 +95,9 @@ const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
                        '*', '*',  '*', '*'
     );
 
-// ZMK's require-prior-idle-ms (from https://github.com/qmk/qmk_firmware/issues/24262#issuecomment-2301722637)
-// Decision macro for mod-tap keys to override
-#define IS_HOMEROW_MOD_TAP(kc) (              \
-    IS_QK_MOD_TAP(kc)                      && \
-    QK_MOD_TAP_GET_TAP_KEYCODE(kc) >= KC_A && \
-    QK_MOD_TAP_GET_TAP_KEYCODE(kc) <= KC_Z    )
-
-// Decision macro for preceding trigger key and typing interval
-#define IS_TYPING(k) ( \
-    ((uint8_t)(k) <= KC_Z || (uint8_t)(k) == KC_SPC) && \
-    (last_input_activity_elapsed() < 150)    )
-
-bool pre_process_record_user(uint16_t keycode, keyrecord_t *record) {
-    static bool     is_pressed[UINT8_MAX];
-    static uint16_t prev_keycode;
-    const  uint16_t tap_keycode = QK_MOD_TAP_GET_TAP_KEYCODE(keycode);
-
-    if (record->event.pressed) {
-        // Press the tap keycode if the tap-hold key follows the previous key swiftly
-        if (IS_HOMEROW_MOD_TAP(keycode) && IS_TYPING(prev_keycode)) {
-            is_pressed[tap_keycode] = true;
-            record->keycode         = tap_keycode;
-        }
-        // Cache the keycode for subsequent tap decision
-        prev_keycode = keycode;
-    }
-
-    // Release the tap keycode if pressed
-    else if (is_pressed[tap_keycode]) {
-        is_pressed[tap_keycode] = false;
-        record->keycode         = tap_keycode;
-    }
-
-    return true;
-}
 
 // key overrides (mod morphs)
-const key_override_t alt_tab_morph = ko_make_with_layers(MOD_BIT(KC_RALT), KC_A, LALT(KC_TAB), 1 << _DEFAULT);
+const key_override_t alt_tab_morph = ko_make_with_layers(MOD_BIT(KC_RALT), KC_A, RALT(KC_TAB), 1 << _DEFAULT);
 const key_override_t colon_morph = ko_make_basic(MOD_MASK_SHIFT, KC_COLON, KC_SCLN);
 // This globally defines all key overrides to be used
 const key_override_t *key_overrides[] = {
