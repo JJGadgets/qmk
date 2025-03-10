@@ -1,3 +1,9 @@
+#include <stdint.h>
+#include "keycodes.h"
+#include QMK_KEYBOARD_H
+#if __has_include("keymap.h")
+#    include "keymap.h"
+#endif
 // ZMK's require-prior-idle-ms (from https://github.com/qmk/qmk_firmware/issues/24262#issuecomment-2301722637)
 #define REQUIRE_PRIOR_IDLE_MS 150
 // Decision macro for mod-tap keys to override

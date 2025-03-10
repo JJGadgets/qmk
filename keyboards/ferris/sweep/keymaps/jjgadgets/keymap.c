@@ -40,39 +40,29 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 // hold-tap config
-bool HT_CASE_BOOL(uint16_t thekeycode, bool thumb, bool letters) {
+bool HT_THUMBS_IF(uint16_t thekeycode) {
     switch (thekeycode) {
         case LCTL_T(KC_ESC):
         case LSFT_T(KC_SPC):
         case MEH_T(KC_BSPC):
         case LT(_NUM, QK_REP):
-            return thumb;
+        case LCTL_T(TG(_NUM)):
+            return true;
         default:
-            return letters;
-    };
-};
-uint16_t HT_CASE_INT(uint16_t thekeycode, uint16_t thumb, uint16_t letters) {
-    switch (thekeycode) {
-        case LCTL_T(KC_ESC):
-        case LSFT_T(KC_SPC):
-        case MEH_T(KC_BSPC):
-        case LT(_NUM, QK_REP):
-            return thumb;
-        default:
-            return letters;
+            return false;
     };
 };
 bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
-    return HT_CASE_BOOL(keycode, true, false);
+    if (HT_THUMBS_IF(keycode)) {return true;} else {return false;};
 };
 bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
-    return HT_CASE_BOOL(keycode, true, false);
+    if (HT_THUMBS_IF(keycode)) {return false;} else {return true;};
 };
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
-    return HT_CASE_INT(keycode, 200, 280);
+    if (HT_THUMBS_IF(keycode)) {return 200;} else {return 280;};
 };
 uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t *record) {
-    return HT_CASE_INT(keycode, 200, 175);
+    if (HT_THUMBS_IF(keycode)) {return 200;} else {return 175;};
 };
 #include <require-prior-idle-ms.c>
 #define REQUIRE_PRIOR_IDLE_MS 150
