@@ -11,8 +11,9 @@ jobs:
     uses: qmk/.github/.github/workflows/qmk_userspace_build.yml@ba76ce3d20f542d61c4c3d47c1d1d9e73b60a797
     with:
       qmk_repo: qmk/qmk_firmware
-      # renovate: datasource=github-releases depName=qmk/qmk_firmware
-      qmk_ref: 0.28.0
+      qmk_ref: master
+      # # renovate: datasource=github-releases depName=qmk/qmk_firmware
+      # qmk_ref: 0.28.0
 
   date:
     runs-on: ubuntu-latest
