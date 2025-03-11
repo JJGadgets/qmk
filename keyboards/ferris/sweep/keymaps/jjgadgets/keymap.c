@@ -13,7 +13,7 @@ enum layer_names {
     _DEFAULT,
     _NUM,
     _FN,
-    /*_MOUSE,*/
+    _MOUSE,
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -37,12 +37,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TRNS, KC_F7, KC_F8, KC_F9, KC_F12,                   KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
         TO(_DEFAULT), KC_NO,                                    KC_NO, TO(_FN)
     ),
-    /*[_MOUSE] = LAYOUT_split_3x5_2(*/
+    [_MOUSE] = LAYOUT_split_3x5_2(
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,            KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,            KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,            KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
     /*    KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,            MS_WHLU, MS_WHLL, MS_UP, MS_WHLR, TO(_DEFAULT),*/
     /*    KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,            MS_WHLD, MS_LEFT, MS_DOWN, MS_RGHT, TO(_DEFAULT),*/
     /*    KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,            MS_BTN6, MS_BTN4, MS_BTN3, MS_BTN5, MS_BTN7,*/
     /*    TO(_DEFAULT), KC_TRNS,                                  MS_BTN1, MS_BTN2*/
-    /*),*/
+    ),
 };
 
 // custom hold-tap bindings
