@@ -4,7 +4,7 @@
 /*#define MASTER_LEFT*/
 // detect master based on location of USB rather than voltage detection, thank my cheap ass Pro Micro for that :(
 #define SPLIT_USB_DETECT
-#define SPLIT_USB_TIMEOUT 5000
+/*#define SPLIT_USB_TIMEOUT 2000*/
 
 // default but used in macros
 #undef TAPPING_TERM
@@ -18,9 +18,9 @@
 /*#define TAPPING_FORCE_HOLD*/
 
 // Auto Shift
-/*#define NO_AUTO_SHIFT_ALPHA*/
-/*#define AUTO_SHIFT_TIMEOUT TAPPING_TERM*/
-/*#define AUTO_SHIFT_NO_SETUP*/
+#define NO_AUTO_SHIFT_ALPHA
+#define AUTO_SHIFT_TIMEOUT TAPPING_TERM
+#define AUTO_SHIFT_NO_SETUP
 
 // Neutralized keycode
 #define DUMMY_MOD_NEUTRALIZER_KEYCODE KC_F18
@@ -39,10 +39,3 @@
 /*#define MOUSEKEY_MAX_SPEED      6*/
 /*#undef MOUSEKEY_TIME_TO_MAX*/
 /*#define MOUSEKEY_TIME_TO_MAX    64*/
-
-// space savings
-#define LAYER_STATE_8BIT // 8 layers max, change to 16bit if 16 layers
-#define NO_MUSIC_MODE
-#undef LOCKING_SUPPORT_ENABLE
-#undef LOCKING_RESYNC_ENABLE
-
