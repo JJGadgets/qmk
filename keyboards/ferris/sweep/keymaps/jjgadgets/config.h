@@ -4,7 +4,7 @@
 /*#define MASTER_LEFT*/
 // detect master based on location of USB rather than voltage detection, thank my cheap ass Pro Micro for that :(
 #define SPLIT_USB_DETECT
-/*#define SPLIT_USB_TIMEOUT 2000*/
+#define SPLIT_USB_TIMEOUT 5000
 
 // default but used in macros
 #undef TAPPING_TERM

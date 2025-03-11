@@ -5,6 +5,16 @@ This is a template repository which allows for an external set of QMK keymaps to
 ## Sweep Layout
 ![Ferris Sweep layout](./images/cradio.svg)
 
+## Neovim LSP
+1. Install clangd with Mason, or ccls with system package manager or Homebrew or Nix (personal preference, clangd is easier to get going). Configure Neovim LSP to use the installed clangd/ccls (usually with nvim-lspconfig).
+2. Setup QMK ussrspace repo like normal, including `qmk setup`.
+3. Run `qmk generate-compilation-database -kb $KEYBOARD -km $KEYMAP`, choose any keyboard and keymap. (Unsure if which keyboard & keymap chosen matters? maybe rules.mk stuff)
+4. Run `ln -s ~/qmk_firmware/compile_commands.json ./compile_commands.json` to have the generated output file in the userspace repo (will be gitignored).
+5. Run a `qmk compile -kb $KEYBOARD -km $KEYMAP` on the same chosen keyboard and keymap to have cached build files.
+6. Launch Neovim and test if keycodes can now be autocompleted.
+7. ???
+8. Profit
+
 ## Howto configure your build targets
 
 1. Run the normal `qmk setup` procedure if you haven't already done so -- see [QMK Docs](https://docs.qmk.fm/#/newbs) for details.
