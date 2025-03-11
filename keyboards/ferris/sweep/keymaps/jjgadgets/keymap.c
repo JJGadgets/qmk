@@ -22,10 +22,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_A, KC_R, KC_S, KC_T, KC_D,                           KC_H, KC_N, KC_E, KC_I, KC_O,
         LT(_FN, KC_Z), KC_X, RALT_T(KC_C), RGUI_T(KC_V), KC_B,  KC_K, LGUI_T(KC_M), LALT_T(KC_COMM), RCTL_T(KC_DOT), LT(_MOUSE, KC_SLSH),
         LCTL_T(KC_ESC), LSFT_T(KC_SPC),                         MEH_T(KC_BSPC), LT(_NUM, QK_REP)
+        /*LCTL_T(KC_SPC), LSFT_T(OSM(MOD_LSFT)),                  MEH_T(KC_BSPC), LT(_NUM, QK_REP)*/
         /*LCTL_T(QK_GESC), LSFT_T(OSM(MOD_LSFT)),                         MEH_T(KC_SPC), LT(_NUM, KC_BSPC)*/ // one day I'll get used to this
     ),
     [_NUM] = LAYOUT_split_3x5_2(
-        KC_TILDE, KC_1, KC_2, KC_3, KC_COMM,                    KC_BSLS, KC_HOME, KC_UP, KC_END, KC_DEL,
+        KC_TILDE, KC_1, KC_2, KC_3, KC_COMM,                    KC_BSLS, LT(_NUM, KC_HOME), KC_UP, LT(_NUM, KC_END), KC_DEL,
         QK_GESC, KC_4, KC_5, KC_6, KC_DOT,                      KC_TAB, KC_LEFT, KC_DOWN, KC_RIGHT, KC_QUOTE,
         KC_ENTER, KC_7, KC_8, KC_9, KC_0,                       KC_LBRC, KC_RBRC, KC_MINUS, KC_EQUAL, KC_PSCR,
         LCTL_T(TG(_NUM)), LSFT_T(KC_SPC),                       MEH_T(KC_BSPC), KC_TRNS
@@ -46,8 +47,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // custom hold-tap bindings
 bool jj_tap_hold_tap_override(keyrecord_t *therecord, uint16_t tapkey) {
-/*#define tap_hold_tap_override(therecord, tapkey) ( \*/
     if (therecord->tap.count && therecord->event.pressed) {
+        tap_code16(tapkey);
+        return false;
+    } else {
+        return true;
+    }
+};
+bool jj_tap_hold_hold_override(keyrecord_t *therecord, uint16_t tapkey) {
+/*#define tap_hold_tap_override(therecord, tapkey) ( \*/
+    if (!therecord->tap.count && therecord->event.pressed) {
         tap_code16(tapkey);
         return false;
     } else {
@@ -58,6 +67,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case LT(_NUM, QK_REP): return jj_tap_hold_tap_override(record, QK_REP); break;
         case LCTL_T(TG(_NUM)): return jj_tap_hold_tap_override(record, TG(_NUM)); break;
+        case LT(_NUM, KC_HOME): return jj_tap_hold_hold_override(record, KC_PGUP); break;
+        case LT(_NUM, KC_END): return jj_tap_hold_hold_override(record, KC_PGDN); break;
     }
     return true;
 };
@@ -83,6 +94,7 @@ const key_override_t *key_overrides[] = {
 	&alt_tab_morph,
 	&alt_tab_shift_morph,
     &colon_morph,
+    &tilde_morph,
 };
 
 // hold-tap config
@@ -108,7 +120,7 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     if (HT_THUMBS_IF(keycode)) {return 200;} else {return 280;};
 };
 uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t *record) {
-    if (HT_THUMBS_IF(keycode)) {return 200;} else {return 175;};
+    if (keycode == LSFT_T(KC_SPC)) {return 0;} else if (HT_THUMBS_IF(keycode)) {return 200;} else {return 175;};
 };
 #include <require-prior-idle-ms.c>
 #define REQUIRE_PRIOR_IDLE_MS 150
