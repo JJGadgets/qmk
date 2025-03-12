@@ -8,7 +8,7 @@ MOUSEKEY_ENABLE = yes
 # space savings
 LTO_ENABLE = yes
 MUSIC_ENABLE = no
-CONSOLE_ENABLE = yes # TODO: tmp to debug TRRS disconnects
+CONSOLE_ENABLE = no
 COMMAND_ENABLE = no
 MAGIC_ENABLE = no
 SPACE_CADET_ENABLE = no

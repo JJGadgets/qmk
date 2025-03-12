@@ -46,18 +46,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 // custom hold-tap bindings
-bool jj_tap_hold_tap_override(keyrecord_t *therecord, uint16_t tapkey) {
-    if (therecord->tap.count && therecord->event.pressed) {
+bool jj_tap_hold_override(keyrecord_t *therecord, bool tap_override, uint16_t tapkey, bool hold_override, uint16_t holdkey) {
+    if (!therecord->tap.count && therecord->event.pressed && tap_override) {
         tap_code16(tapkey);
         return false;
-    } else {
-        return true;
-    }
-};
-bool jj_tap_hold_hold_override(keyrecord_t *therecord, uint16_t tapkey) {
-/*#define tap_hold_tap_override(therecord, tapkey) ( \*/
-    if (!therecord->tap.count && therecord->event.pressed) {
-        tap_code16(tapkey);
+    } else if (!therecord->tap.count && therecord->event.pressed && hold_override) {
+        register_code16(holdkey);
+        return false;
+    } else if (!therecord->tap.count && !therecord->event.pressed && hold_override) {
+        unregister_code16(holdkey);
         return false;
     } else {
         return true;
@@ -65,28 +62,30 @@ bool jj_tap_hold_hold_override(keyrecord_t *therecord, uint16_t tapkey) {
 };
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case LT(_NUM, QK_REP): return jj_tap_hold_tap_override(record, QK_REP); break;
-        case LCTL_T(TG(_NUM)): return jj_tap_hold_tap_override(record, TG(_NUM)); break;
-        case LT(_NUM, KC_HOME): return jj_tap_hold_hold_override(record, KC_PGUP); break;
-        case LT(_NUM, KC_END): return jj_tap_hold_hold_override(record, KC_PGDN); break;
+        case LT(_NUM, QK_REP): return jj_tap_hold_override(record, true, QK_REP, false, KC_NO); break;
+        case LCTL_T(TG(_NUM)): return jj_tap_hold_override(record, true, TG(_NUM), false, KC_NO); break;
+        case LT(_NUM, KC_HOME): return jj_tap_hold_override(record, false, KC_NO, true, KC_PGUP); break;
+        case LT(_NUM, KC_END): return jj_tap_hold_override(record, false, KC_NO, true, KC_PGDN); break;
     }
     return true;
 };
 
 // combos
 const uint16_t PROGMEM combo_enter[] = {KC_N, KC_E, KC_I, COMBO_END};
-const uint16_t PROGMEM combo_mouse[] = {KC_L, KC_U, KC_Y, COMBO_END};
+const uint16_t PROGMEM combo_mouse_default[] = {KC_L, KC_U, KC_Y, COMBO_END};
+const uint16_t PROGMEM combo_mouse_layered[] = {MS_WHLL, MS_UP, MS_WHLR, COMBO_END};
 const uint16_t PROGMEM combo_caps[] = {KC_SPC, KC_BSPC, COMBO_END};
 // This globally defines all combos to be used
 combo_t key_combos[] = {
     COMBO(combo_enter, KC_ENTER),
-    COMBO(combo_mouse, TG(_MOUSE)),
+    COMBO(combo_mouse_default, TG(_MOUSE)),
+    COMBO(combo_mouse_layered, TG(_MOUSE)),
     COMBO(combo_caps, QK_CAPS_WORD_TOGGLE),
 };
 
 // key overrides (mod morphs)
-const key_override_t alt_tab_morph = ko_make_with_layers(MOD_BIT(KC_RALT), KC_A, RALT_T(KC_TAB), 1 << _DEFAULT);
-const key_override_t alt_tab_shift_morph = ko_make_with_layers(MOD_BIT(KC_RALT) | MOD_BIT(KC_LSFT), KC_A, RALT_T(KC_TAB), 1 << _DEFAULT);
+const key_override_t alt_tab_morph = ko_make_with_layers(MOD_BIT(KC_RALT), KC_A, RALT(KC_TAB), 1 << _DEFAULT);
+const key_override_t alt_tab_shift_morph = ko_make_with_layers(MOD_BIT(KC_RALT) | MOD_BIT(KC_LSFT), KC_A, LSFT(RALT(KC_TAB)), 1 << _DEFAULT);
 const key_override_t colon_morph = ko_make_basic(MOD_MASK_SHIFT, KC_COLON, KC_SCLN);
 const key_override_t tilde_morph = ko_make_basic(MOD_MASK_SHIFT, KC_TILDE, KC_GRV);
 // This globally defines all key overrides to be used
@@ -120,7 +119,8 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     if (HT_THUMBS_IF(keycode)) {return 200;} else {return 280;};
 };
 uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t *record) {
-    if (keycode == LSFT_T(KC_SPC)) {return 0;} else if (HT_THUMBS_IF(keycode)) {return 200;} else {return 175;};
+    if (keycode == LSFT_T(KC_SPC)) {return 0;} // disable auto repeat for shift space
+    else if (HT_THUMBS_IF(keycode)) {return 200;} else {return 175;};
 };
 #include <require-prior-idle-ms.c>
 #define REQUIRE_PRIOR_IDLE_MS 150
@@ -141,16 +141,16 @@ const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
 uint16_t keycode_config(uint16_t keycode) {
     return keycode;
 }
-#endif
-#ifndef MAGIC_ENABLE
 uint8_t mod_config(uint8_t mod) {
     return mod;
 }
 #endif
 
+#ifdef CONSOLE_ENABLE
 void keyboard_post_init_user(void) {
   debug_enable=true;
   debug_matrix=true;
   debug_keyboard=true;
   debug_mouse=true;
 }
+#endif
