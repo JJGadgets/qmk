@@ -20,7 +20,7 @@ enum layer_names {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_DEFAULT] = LAYOUT_split_3x5_2(
         KC_Q, KC_W, KC_F, KC_P, KC_G,                           KC_J, KC_L, KC_U, KC_Y, KC_COLON,
-        KC_A, KC_R, KC_S, LSFT_T(KC_T), KC_D,                   KC_H, LSFT_T(KC_N), KC_E, KC_I, KC_O,
+        KC_A, KC_R, KC_S, KC_T, KC_D,                           KC_H, KC_N, KC_E, KC_I, KC_O,
         LT(_FN, KC_Z), KC_X, RALT_T(KC_C), RGUI_T(KC_V), KC_B,  KC_K, LGUI_T(KC_M), LALT_T(KC_COMM), RCTL_T(KC_DOT), LT(_MOUSE, KC_SLASH),
         LCTL_T(KC_ESC), LSFT_T(KC_SPC),                         MEH_T(KC_BSPC), LT(_NUM, QK_REP)
         /*LCTL_T(KC_SPC), LSFT_T(OSM(MOD_LSFT)),                  MEH_T(KC_BSPC), LT(_NUM, QK_REP)*/
@@ -65,9 +65,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case LT(_NUM, KC_HOME): return jj_tap_hold_override(record, false, KC_NO, true, KC_PGUP); break;
         case LT(_NUM, KC_END): return jj_tap_hold_override(record, false, KC_NO, true, KC_PGDN); break;
-        case LSFT_T(KC_T):
-        case LSFT_T(KC_N):
-            return jj_tap_hold_override(record, false, KC_NO, true, OSM(MOD_LSFT)); break;
         case LT(_NUM, QK_REP):
             if (record->tap.count && record->event.pressed) {
                 repeat_key_invoke(&record->event);
