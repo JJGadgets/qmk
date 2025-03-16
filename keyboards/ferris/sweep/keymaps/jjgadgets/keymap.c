@@ -5,6 +5,7 @@
 #include "process_key_override.h"
 #include "quantum.h"
 #include "quantum_keycodes.h"
+#include "repeat_key.h"
 #include QMK_KEYBOARD_H
 #if __has_include("keymap.h")
 #    include "keymap.h"
@@ -22,7 +23,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_Q, KC_W, KC_F, KC_P, KC_G,                           KC_J, KC_L, KC_U, KC_Y, KC_COLON,
         KC_A, KC_R, KC_S, KC_T, KC_D,                           KC_H, KC_N, KC_E, KC_I, KC_O,
         LT(_FN, KC_Z), KC_X, RALT_T(KC_C), RGUI_T(KC_V), KC_B,  KC_K, LGUI_T(KC_M), LALT_T(KC_COMM), RCTL_T(KC_DOT), LT(_MOUSE, KC_SLASH),
-        LCTL_T(KC_ESC), LSFT_T(KC_SPC),                         MEH_T(KC_BSPC), LT(_NUM, QK_REP)
+        LCTL_T(KC_ESC), LSFT_T(KC_SPC),                         MEH_T(KC_BSPC), LT(_NUM, KC_R)
         /*LCTL_T(KC_SPC), LSFT_T(OSM(MOD_LSFT)),                  MEH_T(KC_BSPC), LT(_NUM, QK_REP)*/
         /*LCTL_T(QK_GESC), LSFT_T(OSM(MOD_LSFT)),                         MEH_T(KC_SPC), LT(_NUM, KC_BSPC)*/ // one day I'll get used to this
     ),
@@ -65,9 +66,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case LT(_NUM, KC_HOME): return jj_tap_hold_override(record, false, KC_NO, true, KC_PGUP); break;
         case LT(_NUM, KC_END): return jj_tap_hold_override(record, false, KC_NO, true, KC_PGDN); break;
-        case LT(_NUM, QK_REP):
+        /*case LSFT_T(KC_T):*/
+        /*case LSFT_T(KC_N):*/
+        /*    return jj_tap_hold_override(record, false, KC_NO, true, OSM(MOD_LSFT)); break;*/
+        case LT(_NUM, KC_R):
             if (record->tap.count && record->event.pressed) {
-                repeat_key_invoke(&record->event);
+                if (get_mods() == MOD_BIT(KC_LCTL)) { repeat_key_invoke(&record->event); } else { alt_repeat_key_invoke(&record->event); }
                 return false; break;
             }
         case LCTL_T(QK_LLCK):
@@ -86,6 +90,7 @@ const uint16_t PROGMEM combo_mouse_layered[] = {MS_WHLL, MS_UP, MS_WHLR, COMBO_E
 const uint16_t PROGMEM combo_caps[] = {KC_SPC, KC_BSPC, COMBO_END};
 const uint16_t PROGMEM combo_caps2[] = {LSFT_T(KC_SPC), MEH_T(KC_BSPC), COMBO_END};
 const uint16_t PROGMEM combo_tab[] = {KC_X, KC_C, COMBO_END};
+const uint16_t PROGMEM combo_alt_repeat[] = {KC_R, KC_S, COMBO_END};
 const uint16_t PROGMEM combo_one_shot_shift_l[] = {KC_W, KC_F, COMBO_END};
 const uint16_t PROGMEM combo_one_shot_shift_r[] = {KC_U, KC_Y, COMBO_END};
 // This globally defines all combos to be used
@@ -96,6 +101,7 @@ combo_t key_combos[] = {
     COMBO(combo_caps, QK_CAPS_WORD_TOGGLE),
     COMBO(combo_caps2, QK_CAPS_WORD_TOGGLE),
     COMBO(combo_tab, KC_TAB),
+    COMBO(combo_alt_repeat, QK_ALT_REPEAT_KEY),
     COMBO(combo_one_shot_shift_l, OSM(MOD_LSFT)),
     COMBO(combo_one_shot_shift_r, OSM(MOD_LSFT)),
 };
