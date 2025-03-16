@@ -3,10 +3,13 @@
 #include "action_util.h"
 #include "keycodes.h"
 #include "modifiers.h"
+#include "process_combo.h"
+#include "process_dynamic_macro.h"
 #include "process_key_override.h"
 #include "quantum.h"
 #include "quantum_keycodes.h"
 #include "repeat_key.h"
+// most includes above are auto-inserted by clangd LSP in Neovim, the below are the defaults from a fresh QMK json2c output
 #include QMK_KEYBOARD_H
 #if __has_include("keymap.h")
 #    include "keymap.h"
@@ -48,6 +51,30 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 };
 
+// dynamic macros
+uint8_t jj_current_dynamic_macro_length = false;
+bool jj_current_dynamic_macro_recording;
+bool dynamic_macro_record_start_user(int8_t direction) {
+    if (direction == 1) {
+        jj_current_dynamic_macro_recording = true;
+        jj_current_dynamic_macro_length = 0;
+    }
+    return true;
+}
+bool dynamic_macro_record_key_user(int8_t direction, keyrecord_t *record) {
+    if (direction == 1) {
+        jj_current_dynamic_macro_recording = true;
+        jj_current_dynamic_macro_length += 1;
+    }
+    return true;
+}
+bool dynamic_macro_record_end_user(int8_t direction) {
+    if (direction == 1) {
+        jj_current_dynamic_macro_recording = false;
+    }
+    return true;
+}
+
 // custom hold-tap bindings
 bool jj_tap_hold_override(keyrecord_t *therecord, bool tap_override, uint16_t tapkey, bool hold_override, uint16_t holdkey) {
     if (therecord->tap.count && therecord->event.pressed && tap_override) {
@@ -84,6 +111,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     del_mods(MOD_BIT(KC_LCTL));
                     repeat_key_invoke(&record->event);
                     set_mods(mod_state);
+                } else if (jj_current_dynamic_macro_recording == true) {
+                    tap_code16(DM_RSTP);
+                } else if (jj_current_dynamic_macro_length > 0) {
+                    tap_code16(DM_PLY1);
                 } else {
                     alt_repeat_key_invoke(&record->event);
                 }
@@ -92,6 +123,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return true;
 };
+
+// alt repeat key
+uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
+    bool shifted = (mods & MOD_MASK_SHIFT);
+    bool ctrled = (mods & MOD_MASK_CTRL);
+    switch (keycode) {
+        case KC_TAB: if (shifted) { return KC_TAB; } else { return LSFT(KC_TAB); }
+        case KC_Z: if (ctrled) { return LCTL(KC_Y); }
+        case KC_Y: if (ctrled) { return LCTL(KC_Z); }
+    }
+    return KC_TRNS;
+}
 
 // combos
 const uint16_t PROGMEM combo_enter[] = {KC_N, KC_E, KC_I, COMBO_END};
@@ -102,6 +145,11 @@ const uint16_t PROGMEM combo_caps2[] = {LSFT_T(KC_SPC), MEH_T(KC_BSPC), COMBO_EN
 const uint16_t PROGMEM combo_tab[] = {KC_X, KC_C, COMBO_END};
 const uint16_t PROGMEM combo_one_shot_shift_l[] = {KC_W, KC_F, COMBO_END};
 const uint16_t PROGMEM combo_one_shot_shift_r[] = {KC_U, KC_Y, COMBO_END};
+const uint16_t PROGMEM combo_record_dynamic_macro_1_default[] = {LT(_NUM, KC_R), KC_Y, KC_COLON, COMBO_END};
+const uint16_t PROGMEM combo_record_dynamic_macro_1_num[] = {LT(_NUM, KC_R), LT(_NUM, KC_END), KC_DEL, COMBO_END};
+// I broke the switch on the Colemak k key lol, temporary workaround
+const uint16_t PROGMEM combo_tmp_k_default[] = {LGUI_T(KC_M), LALT_T(KC_COMM), COMBO_END};
+const uint16_t PROGMEM combo_tmp_k_num[] = {KC_RBRC, KC_MINUS, COMBO_END};
 // This globally defines all combos to be used
 combo_t key_combos[] = {
     COMBO(combo_enter, KC_ENTER),
@@ -112,6 +160,10 @@ combo_t key_combos[] = {
     COMBO(combo_tab, KC_TAB),
     COMBO(combo_one_shot_shift_l, OSM(MOD_LSFT)),
     COMBO(combo_one_shot_shift_r, OSM(MOD_LSFT)),
+    COMBO(combo_record_dynamic_macro_1_default, DM_REC1),
+    // I broke the switch on the Colemak k key lol, temporary workaround
+    COMBO(combo_tmp_k_default, KC_K),
+    COMBO(combo_tmp_k_num, KC_LBRC),
 };
 
 // key overrides (mod morphs)
