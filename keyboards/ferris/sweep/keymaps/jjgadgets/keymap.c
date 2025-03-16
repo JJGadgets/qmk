@@ -22,12 +22,14 @@ enum layer_names {
     _MOUSE,
 };
 
+#define LT_NUM_REP LT(_NUM, KC_R)
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_DEFAULT] = LAYOUT_split_3x5_2(
         KC_Q, KC_W, KC_F, KC_P, KC_G,                           KC_J, KC_L, KC_U, KC_Y, KC_COLON,
         KC_A, KC_R, KC_S, KC_T, KC_D,                           KC_H, KC_N, KC_E, KC_I, KC_O,
         LT(_FN, KC_Z), KC_X, RALT_T(KC_C), RGUI_T(KC_V), KC_B,  KC_K, LGUI_T(KC_M), LALT_T(KC_COMM), RCTL_T(KC_DOT), LT(_MOUSE, KC_SLASH),
-        LCTL_T(KC_ESC), LSFT_T(KC_SPC),                         MEH_T(KC_BSPC), LT(_NUM, KC_R)
+        LCTL_T(KC_ESC), LSFT_T(KC_SPC),                         MEH_T(KC_BSPC), LT_NUM_REP
         /*LCTL_T(KC_SPC), LSFT_T(OSM(MOD_LSFT)),                  MEH_T(KC_BSPC), LT(_NUM, QK_REP)*/
         /*LCTL_T(QK_GESC), LSFT_T(OSM(MOD_LSFT)),                         MEH_T(KC_SPC), LT(_NUM, KC_BSPC)*/ // one day I'll get used to this
     ),
@@ -91,38 +93,42 @@ bool jj_tap_hold_override(keyrecord_t *therecord, bool tap_override, uint16_t ta
     }
 };
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    /*uint8_t mod_state;*/
+    uint8_t mod_state;
     switch (keycode) {
         case LT(_NUM, KC_HOME): return jj_tap_hold_override(record, false, KC_NO, true, KC_PGUP); break;
         case LT(_NUM, KC_END): return jj_tap_hold_override(record, false, KC_NO, true, KC_PGDN); break;
-        /*case LSFT_T(KC_T):*/
-        /*case LSFT_T(KC_N):*/
-        /*    return jj_tap_hold_override(record, false, KC_NO, true, OSM(MOD_LSFT)); break;*/
         case LCTL_T(QK_LLCK):
             if (record->tap.count && record->event.pressed) {
                 layer_lock_invert(get_highest_layer(layer_state));
                 return false; break;
             }
-        case LT(_NUM, KC_R):
-            /*mod_state = get_mods();*/
+        case LT_NUM_REP:
+            mod_state = get_mods();
             if (record->tap.count && record->event.pressed) {
-                /*if (mod_state & MOD_BIT(KC_LCTL)) {*/
-                /*    del_mods(MOD_BIT(KC_LCTL));*/
-                repeat_key_invoke(&record->event);
-                /*    set_mods(mod_state);*/
-                /*} else if (jj_current_dynamic_macro_recording == true) {*/
-                /*    tap_code16(DM_RSTP);*/
-                /*} else if (jj_current_dynamic_macro_length > 0) {*/
-                /*    tap_code16(DM_PLY1);*/
-                /*} else {*/
-                /*    alt_repeat_key_invoke(&record->event);*/
-                /*}*/
+                if (mod_state & MOD_BIT(KC_LCTL)) {
+                    del_mods(MOD_BIT(KC_LCTL));
+                    repeat_key_invoke(&record->event);
+                    set_mods(mod_state);
+                } else if (jj_current_dynamic_macro_recording == true) {
+                    tap_code16(DM_RSTP);
+                } else if (jj_current_dynamic_macro_length > 0) {
+                    tap_code16(DM_PLY1);
+                } else {
+                    alt_repeat_key_invoke(&record->event);
+                }
                 return false; break;
             }
     }
     return true;
 };
 
+// repeat key
+bool remember_last_key_user(uint16_t keycode, keyrecord_t* record, uint8_t* remembered_mods) {
+    switch (keycode) {
+        case LT_NUM_REP:
+            return false;
+    }
+    return true;
 // alt repeat key
 uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
     bool shifted = (mods & MOD_MASK_SHIFT);
@@ -144,8 +150,8 @@ const uint16_t PROGMEM combo_caps2[] = {LSFT_T(KC_SPC), MEH_T(KC_BSPC), COMBO_EN
 const uint16_t PROGMEM combo_tab[] = {KC_X, KC_C, COMBO_END};
 const uint16_t PROGMEM combo_one_shot_shift_l[] = {KC_W, KC_F, COMBO_END};
 const uint16_t PROGMEM combo_one_shot_shift_r[] = {KC_U, KC_Y, COMBO_END};
-const uint16_t PROGMEM combo_record_dynamic_macro_1_default[] = {LT(_NUM, KC_R), KC_Y, KC_COLON, COMBO_END};
-const uint16_t PROGMEM combo_record_dynamic_macro_1_num[] = {LT(_NUM, KC_R), LT(_NUM, KC_END), KC_DEL, COMBO_END};
+const uint16_t PROGMEM combo_record_dynamic_macro_1_default[] = {LT_NUM_REP, KC_Y, KC_COLON, COMBO_END};
+const uint16_t PROGMEM combo_record_dynamic_macro_1_num[] = {LT_NUM_REP, LT(_NUM, KC_END), KC_DEL, COMBO_END};
 // I broke the switch on the Colemak k key lol, temporary workaround
 const uint16_t PROGMEM combo_tmp_k_default[] = {LGUI_T(KC_M), LALT_T(KC_COMM), COMBO_END};
 const uint16_t PROGMEM combo_tmp_k_num[] = {KC_RBRC, KC_MINUS, COMBO_END};
