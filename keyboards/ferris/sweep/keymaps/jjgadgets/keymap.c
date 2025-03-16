@@ -91,8 +91,7 @@ bool jj_tap_hold_override(keyrecord_t *therecord, bool tap_override, uint16_t ta
     }
 };
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    /*uint8_t mod_state = get_mods();*/
-    uint8_t mod_state;
+    /*uint8_t mod_state;*/
     switch (keycode) {
         case LT(_NUM, KC_HOME): return jj_tap_hold_override(record, false, KC_NO, true, KC_PGUP); break;
         case LT(_NUM, KC_END): return jj_tap_hold_override(record, false, KC_NO, true, KC_PGDN); break;
