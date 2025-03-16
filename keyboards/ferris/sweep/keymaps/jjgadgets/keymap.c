@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "action.h"
+#include "action_util.h"
 #include "keycodes.h"
 #include "modifiers.h"
 #include "process_key_override.h"
@@ -63,20 +64,29 @@ bool jj_tap_hold_override(keyrecord_t *therecord, bool tap_override, uint16_t ta
     }
 };
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    /*uint8_t mod_state = get_mods();*/
+    uint8_t mod_state;
     switch (keycode) {
         case LT(_NUM, KC_HOME): return jj_tap_hold_override(record, false, KC_NO, true, KC_PGUP); break;
         case LT(_NUM, KC_END): return jj_tap_hold_override(record, false, KC_NO, true, KC_PGDN); break;
         /*case LSFT_T(KC_T):*/
         /*case LSFT_T(KC_N):*/
         /*    return jj_tap_hold_override(record, false, KC_NO, true, OSM(MOD_LSFT)); break;*/
-        case LT(_NUM, KC_R):
-            if (record->tap.count && record->event.pressed) {
-                if (get_mods() == MOD_BIT(KC_LCTL)) { repeat_key_invoke(&record->event); } else { alt_repeat_key_invoke(&record->event); }
-                return false; break;
-            }
         case LCTL_T(QK_LLCK):
             if (record->tap.count && record->event.pressed) {
                 layer_lock_invert(get_highest_layer(layer_state));
+                return false; break;
+            }
+        case LT(_NUM, KC_R):
+            mod_state = get_mods();
+            if (record->tap.count && record->event.pressed) {
+                if (mod_state & MOD_BIT(KC_LCTL)) {
+                    del_mods(MOD_BIT(KC_LCTL));
+                    repeat_key_invoke(&record->event);
+                    set_mods(mod_state);
+                } else {
+                    alt_repeat_key_invoke(&record->event);
+                }
                 return false; break;
             }
     }
@@ -90,7 +100,6 @@ const uint16_t PROGMEM combo_mouse_layered[] = {MS_WHLL, MS_UP, MS_WHLR, COMBO_E
 const uint16_t PROGMEM combo_caps[] = {KC_SPC, KC_BSPC, COMBO_END};
 const uint16_t PROGMEM combo_caps2[] = {LSFT_T(KC_SPC), MEH_T(KC_BSPC), COMBO_END};
 const uint16_t PROGMEM combo_tab[] = {KC_X, KC_C, COMBO_END};
-const uint16_t PROGMEM combo_alt_repeat[] = {KC_R, KC_S, COMBO_END};
 const uint16_t PROGMEM combo_one_shot_shift_l[] = {KC_W, KC_F, COMBO_END};
 const uint16_t PROGMEM combo_one_shot_shift_r[] = {KC_U, KC_Y, COMBO_END};
 // This globally defines all combos to be used
@@ -101,7 +110,6 @@ combo_t key_combos[] = {
     COMBO(combo_caps, QK_CAPS_WORD_TOGGLE),
     COMBO(combo_caps2, QK_CAPS_WORD_TOGGLE),
     COMBO(combo_tab, KC_TAB),
-    COMBO(combo_alt_repeat, QK_ALT_REPEAT_KEY),
     COMBO(combo_one_shot_shift_l, OSM(MOD_LSFT)),
     COMBO(combo_one_shot_shift_r, OSM(MOD_LSFT)),
 };
