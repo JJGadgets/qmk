@@ -105,19 +105,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false; break;
             }
         case LT(_NUM, KC_R):
-            mod_state = get_mods();
+            /*mod_state = get_mods();*/
             if (record->tap.count && record->event.pressed) {
-                if (mod_state & MOD_BIT(KC_LCTL)) {
-                    del_mods(MOD_BIT(KC_LCTL));
-                    repeat_key_invoke(&record->event);
-                    set_mods(mod_state);
-                } else if (jj_current_dynamic_macro_recording == true) {
-                    tap_code16(DM_RSTP);
-                } else if (jj_current_dynamic_macro_length > 0) {
-                    tap_code16(DM_PLY1);
-                } else {
-                    alt_repeat_key_invoke(&record->event);
-                }
+                /*if (mod_state & MOD_BIT(KC_LCTL)) {*/
+                /*    del_mods(MOD_BIT(KC_LCTL));*/
+                repeat_key_invoke(&record->event);
+                /*    set_mods(mod_state);*/
+                /*} else if (jj_current_dynamic_macro_recording == true) {*/
+                /*    tap_code16(DM_RSTP);*/
+                /*} else if (jj_current_dynamic_macro_length > 0) {*/
+                /*    tap_code16(DM_PLY1);*/
+                /*} else {*/
+                /*    alt_repeat_key_invoke(&record->event);*/
+                /*}*/
                 return false; break;
             }
     }
