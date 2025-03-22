@@ -22,7 +22,7 @@ enum layer_names {
     _MOUSE,
 };
 
-#define LT_NUM_REP LT(_NUM, KC_R)
+#define LT_NUM_REP LT(_NUM, QK_REPEAT_KEY)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_DEFAULT] = LAYOUT_split_3x5_2(
@@ -54,8 +54,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 // dynamic macros
-uint8_t jj_current_dynamic_macro_length = false;
-bool jj_current_dynamic_macro_recording;
+bool jj_current_dynamic_macro_recording = false;
+uint8_t jj_current_dynamic_macro_length = 0;
 bool dynamic_macro_record_start_user(int8_t direction) {
     if (direction == 1) {
         jj_current_dynamic_macro_recording = true;
@@ -193,7 +193,7 @@ bool HT_THUMBS_IF(uint16_t thekeycode) {
         case LCTL_T(KC_ESC):
         case LSFT_T(KC_SPC):
         case MEH_T(KC_BSPC):
-        case LT(_NUM, QK_REP):
+        case LT_NUM_REP:
         case LCTL_T(TG(_NUM)):
             return true;
         default:
