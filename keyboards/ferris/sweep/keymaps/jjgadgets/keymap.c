@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "action.h"
 #include "action_util.h"
+#include "keymap_us.h"
 #include "print.h"
 #include "debug.h"
 #include "keycodes.h"
@@ -19,6 +20,7 @@
 
 enum layer_names {
     _DEFAULT,
+    _NON_DH,
     _NUM,
     _FN,
     _MOUSE,
@@ -28,6 +30,12 @@ enum layer_names {
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_DEFAULT] = LAYOUT_split_3x5_2(
+        KC_Q, KC_W, KC_F, KC_P, KC_B,                           KC_J, KC_L, KC_U, KC_Y, KC_COLON,
+        KC_A, KC_R, KC_S, KC_T, KC_G,                           KC_M, KC_N, KC_E, KC_I, KC_O,
+        LT(_FN, KC_Z), KC_X, RALT_T(KC_C), RGUI_T(KC_D), KC_V,  KC_K, LGUI_T(KC_H), LALT_T(KC_COMM), RCTL_T(KC_DOT), LT(_MOUSE, KC_SLASH),
+        LCTL_T(KC_ESC), LSFT_T(KC_SPC),                         MEH_T(KC_BSPC), LT_NUM_REP
+    ),
+    [_NON_DH] = LAYOUT_split_3x5_2(
         KC_Q, KC_W, KC_F, KC_P, KC_G,                           KC_J, KC_L, KC_U, KC_Y, KC_COLON,
         KC_A, KC_R, KC_S, KC_T, KC_D,                           KC_H, KC_N, KC_E, KC_I, KC_O,
         LT(_FN, KC_Z), KC_X, RALT_T(KC_C), RGUI_T(KC_V), KC_B,  KC_K, LGUI_T(KC_M), LALT_T(KC_COMM), RCTL_T(KC_DOT), LT(_MOUSE, KC_SLASH),
@@ -43,15 +51,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [_FN] = LAYOUT_split_3x5_2(
         KC_LALT, KC_F1, KC_F2, KC_F3, KC_F10,                   KC_NO, KC_NO, KC_NO, KC_NO, LCA(KC_DEL),
-        KC_LGUI, KC_F4, KC_F5, KC_F6, KC_F11,                   KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
-        KC_TRNS, KC_F7, KC_F8, KC_F9, KC_F12,                   KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
-        TO(_DEFAULT), KC_NO,                                    KC_NO, TO(_FN)
+        KC_LGUI, KC_F4, KC_F5, KC_F6, KC_F11,                   KC_NO, DM_REC1, DM_REC2, KC_NO, DF(_NON_DH),
+        KC_TRNS, KC_F7, KC_F8, KC_F9, KC_F12,                   KC_NO, KC_NO, KC_NO, KC_NO, DF(_DEFAULT),
+        LCTL_T(QK_LLCK), DF(_NON_DH),                           DM_PLY2, QK_LLCK
     ),
     [_MOUSE] = LAYOUT_split_3x5_2(
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,            MS_WHLU, MS_WHLL, MS_UP, MS_WHLR, TO(_DEFAULT),
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,            MS_WHLD, MS_LEFT, MS_DOWN, MS_RGHT, TO(_DEFAULT),
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,            MS_WHLU, MS_WHLL, MS_UP, MS_WHLR, TG(_MOUSE),
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,            MS_WHLD, MS_LEFT, MS_DOWN, MS_RGHT, TG(_MOUSE),
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,            MS_BTN6, MS_BTN4, MS_BTN3, MS_BTN5, MS_BTN7,
-        TO(_DEFAULT), KC_TRNS,                                  MS_BTN1, MS_BTN2
+        TG(_MOUSE), KC_TRNS,                                    MS_BTN1, MS_BTN2
     ),
 };
 
@@ -138,12 +146,21 @@ bool remember_last_key_user(uint16_t keycode, keyrecord_t* record, uint8_t* reme
 }
 // alt repeat key
 uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
+    dprintf("alt repeat keycode: %s", keycode);
     bool shifted = (mods & MOD_MASK_SHIFT);
     bool ctrled = (mods & MOD_MASK_CTRL);
     switch (keycode) {
+        // shortcuts
         case KC_TAB: if (shifted) { return KC_TAB; } else { return LSFT(KC_TAB); }
         case KC_Z: if (ctrled) { return LCTL(KC_Y); }
         case KC_Y: if (ctrled) { return LCTL(KC_Z); }
+        // Colemak non DH SFBs
+        case KC_E: return KC_QUESTION;
+        case KC_K: return KC_N;
+        case KC_N: return KC_K;
+        case KC_U: return KC_E;
+        case KC_SLASH: if (shifted) { return KC_DOUBLE_QUOTE; }
+        case KC_S: return KC_C;
     }
     return KC_TRNS;
 }
@@ -181,6 +198,8 @@ combo_t key_combos[] = {
 // key overrides (mod morphs)
 const key_override_t alt_tab_morph = ko_make_with_layers(MOD_BIT(KC_RALT), KC_A, RALT(KC_TAB), 1 << _DEFAULT);
 const key_override_t alt_tab_shift_morph = ko_make_with_layers(MOD_BIT(KC_RALT) | MOD_BIT(KC_LSFT), KC_A, LSFT(RALT(KC_TAB)), 1 << _DEFAULT);
+const key_override_t alt_tab_morph_non_dh = ko_make_with_layers(MOD_BIT(KC_RALT), KC_A, RALT(KC_TAB), 1 << _NON_DH);
+const key_override_t alt_tab_shift_morph_non_dh = ko_make_with_layers(MOD_BIT(KC_RALT) | MOD_BIT(KC_LSFT), KC_A, LSFT(RALT(KC_TAB)), 1 << _NON_DH);
 const key_override_t colon_morph = ko_make_basic(MOD_MASK_SHIFT, KC_COLON, KC_SCLN);
 const key_override_t tilde_morph = ko_make_basic(MOD_MASK_SHIFT, KC_TILDE, KC_GRV);
 const key_override_t right_bracket_morph = ko_make_with_layers(MOD_MASK_SHIFT, KC_SLASH, KC_RIGHT_PAREN, 1 << _NUM);
@@ -188,6 +207,8 @@ const key_override_t right_bracket_morph = ko_make_with_layers(MOD_MASK_SHIFT, K
 const key_override_t *key_overrides[] = {
 	&alt_tab_morph,
 	&alt_tab_shift_morph,
+	&alt_tab_morph_non_dh,
+	&alt_tab_shift_morph_non_dh,
     &colon_morph,
     &tilde_morph,
     &right_bracket_morph,
