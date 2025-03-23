@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include "action.h"
 #include "action_util.h"
+#include "print.h"
+#include "debug.h"
 #include "keycodes.h"
 #include "modifiers.h"
 #include "process_combo.h"
@@ -105,6 +107,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case LT_NUM_REP:
             mod_state = get_mods();
             if (record->tap.count && record->event.pressed) {
+                dprintf("mod state: %s", mod_state);
+                dprintf("dynamic macro recording var: %s", jj_current_dynamic_macro_recording);
+                dprintf("dynamic macro length var: %s", jj_current_dynamic_macro_length);
                 if (mod_state & MOD_BIT(KC_LCTL)) {
                     del_mods(MOD_BIT(KC_LCTL));
                     repeat_key_invoke(&record->event);
@@ -115,6 +120,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     tap_code16(DM_PLY1);
                 } else {
                     alt_repeat_key_invoke(&record->event);
+                    dprint("alt repeat key condition reached");
                 }
                 return false; break;
             }
