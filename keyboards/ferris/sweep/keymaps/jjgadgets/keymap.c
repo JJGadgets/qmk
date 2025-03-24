@@ -115,24 +115,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case LT_NUM_REP:
             mod_state = get_mods();
             if (record->tap.count && record->event.pressed) {
-                dprintf("\nmod state: %u\n", mod_state);
-                dprintf("\ndynamic macro recording var: %s\n", jj_current_dynamic_macro_recording ? "true" : "false");
-                dprintf("\ndynamic macro length var: %u\n", jj_current_dynamic_macro_length);
                 if (mod_state & MOD_BIT(KC_LCTL)) {
-                    dprint("\nnormal repeat key condition reached\n");
                     del_mods(MOD_BIT(KC_LCTL));
                     repeat_key_invoke(&record->event);
                     set_mods(mod_state);
                 } else if (jj_current_dynamic_macro_recording == true) {
-                    dprint("\ndynamic macro stop record condition reached\n");
                     dynamic_macro_stop_recording();
                 } else if (jj_current_dynamic_macro_length > 0) {
-                    dprint("\ndynamic macro stop record condition reached\n");
                     process_dynamic_macro(QK_DYNAMIC_MACRO_PLAY_1, record);
                 } else {
-                    dprint("\nalt repeat key condition reached\n");
-                    if (get_alt_repeat_key_keycode()) { alt_repeat_key_invoke(&record->event); } else { repeat_key_invoke(&record->event); }
-                    clear_keyboard(); // will keep repeating otherwise
+                    if (get_alt_repeat_key_keycode()) { alt_repeat_key_invoke(&record->event); } else { repeat_key_invoke(&record->event); } // if no alt repeat, normal repeat key instead
+                    clear_keyboard(); // will keep spam tapping the alt-repeated-keycode otherwise
                 }
                 return false; break;
             }
@@ -149,7 +142,6 @@ bool remember_last_key_user(uint16_t keycode, keyrecord_t* record, uint8_t* reme
 }
 // alt repeat key
 uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
-    dprintf("\nalt repeat keycode: %u\nalt repeat mods: %u\n", keycode, mods);
     bool shifted = (mods & MOD_MASK_SHIFT);
     bool ctrled = (mods & MOD_MASK_CTRL);
     switch (keycode) {
