@@ -115,20 +115,24 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case LT_NUM_REP:
             mod_state = get_mods();
             if (record->tap.count && record->event.pressed) {
-                dprintf("mod state: %s", mod_state);
-                dprintf("dynamic macro recording var: %s", jj_current_dynamic_macro_recording);
-                dprintf("dynamic macro length var: %s", jj_current_dynamic_macro_length);
+                dprintf("\nmod state: %u\n", mod_state);
+                dprintf("\ndynamic macro recording var: %s\n", jj_current_dynamic_macro_recording ? "true" : "false");
+                dprintf("\ndynamic macro length var: %u\n", jj_current_dynamic_macro_length);
                 if (mod_state & MOD_BIT(KC_LCTL)) {
+                    dprint("\nnormal repeat key condition reached\n");
                     del_mods(MOD_BIT(KC_LCTL));
                     repeat_key_invoke(&record->event);
                     set_mods(mod_state);
                 } else if (jj_current_dynamic_macro_recording == true) {
-                    tap_code16(DM_RSTP);
+                    dprint("\ndynamic macro stop record condition reached\n");
+                    dynamic_macro_stop_recording();
                 } else if (jj_current_dynamic_macro_length > 0) {
-                    tap_code16(DM_PLY1);
+                    dprint("\ndynamic macro stop record condition reached\n");
+                    process_dynamic_macro(QK_DYNAMIC_MACRO_PLAY_1, record);
                 } else {
-                    alt_repeat_key_invoke(&record->event);
-                    dprint("alt repeat key condition reached");
+                    dprint("\nalt repeat key condition reached\n");
+                    if (get_alt_repeat_key_keycode()) { alt_repeat_key_invoke(&record->event); } else { repeat_key_invoke(&record->event); }
+                    clear_keyboard(); // will keep repeating otherwise
                 }
                 return false; break;
             }
@@ -139,14 +143,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 // repeat key
 bool remember_last_key_user(uint16_t keycode, keyrecord_t* record, uint8_t* remembered_mods) {
     switch (keycode) {
-        case LT_NUM_REP:
-            return false;
+        case LT_NUM_REP: return false;
+        default: return true;
     }
-    return true;
 }
 // alt repeat key
 uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
-    dprintf("alt repeat keycode: %s", keycode);
+    dprintf("\nalt repeat keycode: %u\nalt repeat mods: %u\n", keycode, mods);
     bool shifted = (mods & MOD_MASK_SHIFT);
     bool ctrled = (mods & MOD_MASK_CTRL);
     switch (keycode) {
@@ -161,8 +164,9 @@ uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
         case KC_U: return KC_E;
         case KC_SLASH: if (shifted) { return KC_DOUBLE_QUOTE; }
         case KC_S: return KC_C;
+        case LT_NUM_REP: return KC_NO;
+        default: return KC_TRNS;
     }
-    return KC_TRNS;
 }
 
 // combos
