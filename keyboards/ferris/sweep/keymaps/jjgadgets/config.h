@@ -1,10 +1,12 @@
 #pragma once
 
-/*#define EE_HANDS*/
-#define MASTER_LEFT
+#define EE_HANDS
+/*#define MASTER_LEFT*/
 // detect master based on location of USB rather than voltage detection, thank my cheap ass Pro Micro for that :(
-/*#define SPLIT_USB_DETECT*/
-/*#define SPLIT_USB_TIMEOUT 2500*/
+#define SPLIT_USB_DETECT
+#define SPLIT_USB_TIMEOUT 2500
+#define SPLIT_WATCHDOG_ENABLE
+#define SPLIT_WATCHDOG_TIMEOUT 10000
 
 // default but used in macros
 #undef TAPPING_TERM
