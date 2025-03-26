@@ -12,6 +12,7 @@
 #include "quantum.h"
 #include "quantum_keycodes.h"
 #include "repeat_key.h"
+#include "socd.h"
 // most includes above are auto-inserted by clangd LSP in Neovim, the below are the defaults from a fresh QMK json2c output
 #include QMK_KEYBOARD_H
 #if __has_include("keymap.h")
@@ -24,6 +25,7 @@ enum layer_names {
     _NUM,
     _FN,
     _MOUSE,
+    _GAME,
 };
 
 #define LT_NUM_REP LT(_NUM, QK_REPEAT_KEY)
@@ -50,16 +52,22 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         LCTL_T(QK_LLCK), LSFT_T(KC_SPC),                        MEH_T(KC_BSPC), KC_TRNS
     ),
     [_FN] = LAYOUT_split_3x5_2(
-        KC_LALT, KC_F1, KC_F2, KC_F3, KC_F10,                   KC_NO, KC_NO, KC_NO, KC_NO, LCA(KC_DEL),
+        KC_LALT, KC_F1, KC_F2, KC_F3, KC_F10,                   KC_NO, KC_NO, KC_NO, TG(_GAME), LCA(KC_DEL),
         KC_LGUI, KC_F4, KC_F5, KC_F6, KC_F11,                   KC_NO, DM_REC1, DM_REC2, KC_NO, DF(_NON_DH),
         KC_TRNS, KC_F7, KC_F8, KC_F9, KC_F12,                   KC_NO, KC_NO, KC_NO, KC_NO, DF(_DEFAULT),
-        LCTL_T(QK_LLCK), DF(_NON_DH),                           DM_PLY2, QK_LLCK
+        LCTL_T(QK_LLCK), DF(_NON_DH),                           DM_PLY2, TG(_GAME)
     ),
     [_MOUSE] = LAYOUT_split_3x5_2(
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,            MS_WHLU, MS_WHLL, MS_UP, MS_WHLR, TG(_MOUSE),
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,            MS_WHLD, MS_LEFT, MS_DOWN, MS_RGHT, TG(_MOUSE),
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,            MS_BTN6, MS_BTN4, MS_BTN3, MS_BTN5, MS_BTN7,
         TG(_MOUSE), KC_TRNS,                                    MS_BTN1, MS_BTN2
+    ),
+    [_GAME] = LAYOUT_split_3x5_2(
+        KC_TAB, SOCD_Q, SOCD_W, SOCD_F, KC_P,                   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+        KC_G, SOCD_A, SOCD_R, SOCD_S, KC_T,                     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+        KC_Z, KC_X, KC_C, KC_V, KC_B,                           KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+        KC_LSFT, KC_SPC,                                        KC_D, TG(_GAME)
     ),
 };
 
@@ -129,8 +137,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
                 return false; break;
             }
+        case SOCD_W: jj_socd(record, KC_W, KC_R, &socd_w_down, &socd_r_down); return false; break;
+        case SOCD_R: jj_socd(record, KC_R, KC_W, &socd_r_down, &socd_w_down); return false; break;
+        case SOCD_A: jj_socd(record, KC_A, KC_S, &socd_a_down, &socd_s_down); return false; break;
+        case SOCD_S: jj_socd(record, KC_S, KC_A, &socd_s_down, &socd_a_down); return false; break;
+        case SOCD_Q: jj_socd(record, KC_Q, KC_F, &socd_q_down, &socd_f_down); return false; break;
+        case SOCD_F: jj_socd(record, KC_F, KC_Q, &socd_f_down, &socd_q_down); return false; break;
+        default: return true;
     }
-    return true;
 };
 
 // repeat key

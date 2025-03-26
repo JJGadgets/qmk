@@ -15,3 +15,7 @@ CONSOLE_ENABLE = no
 COMMAND_ENABLE = no
 MAGIC_ENABLE = no
 SPACE_CADET_ENABLE = no
+
+# gaming
+DEBOUNCE_TYPE = sym_eager_pk
+SOCD_ENABLE = yes
