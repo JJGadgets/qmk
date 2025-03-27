@@ -24,4 +24,4 @@ bool socd_q_down;
 bool socd_f_down;
 bool socd_e_down;
 
-void jj_socd(keyrecord_t *record, uint16_t keycode1, uint16_t keycode2, bool* keydown1, bool* keydown2);
+void jj_socd(keyrecord_t *record, uint16_t keycode1, uint16_t keycode2, bool* keydown1, bool keydown2);

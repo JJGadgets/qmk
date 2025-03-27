@@ -2,8 +2,6 @@
 #include "action.h"
 #include "action_util.h"
 #include "keymap_us.h"
-#include "print.h"
-#include "debug.h"
 #include "keycodes.h"
 #include "modifiers.h"
 #include "process_combo.h"
@@ -21,7 +19,6 @@
 
 enum layer_names {
     _DEFAULT,
-    _NON_DH,
     _NUM,
     _FN,
     _MOUSE,
@@ -32,12 +29,6 @@ enum layer_names {
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_DEFAULT] = LAYOUT_split_3x5_2(
-        KC_Q, KC_W, KC_F, KC_P, KC_B,                           KC_J, KC_L, KC_U, KC_Y, KC_COLON,
-        KC_A, KC_R, KC_S, KC_T, KC_G,                           KC_M, KC_N, KC_E, KC_I, KC_O,
-        LT(_FN, KC_Z), KC_X, RALT_T(KC_C), RGUI_T(KC_D), KC_V,  KC_K, LGUI_T(KC_H), LALT_T(KC_COMM), RCTL_T(KC_DOT), LT(_MOUSE, KC_SLASH),
-        LCTL_T(KC_ESC), LSFT_T(KC_SPC),                         MEH_T(KC_BSPC), LT_NUM_REP
-    ),
-    [_NON_DH] = LAYOUT_split_3x5_2(
         KC_Q, KC_W, KC_F, KC_P, KC_G,                           KC_J, KC_L, KC_U, KC_Y, KC_COLON,
         KC_A, KC_R, KC_S, KC_T, KC_D,                           KC_H, KC_N, KC_E, KC_I, KC_O,
         LT(_FN, KC_Z), KC_X, RALT_T(KC_C), RGUI_T(KC_V), KC_B,  KC_K, LGUI_T(KC_M), LALT_T(KC_COMM), RCTL_T(KC_DOT), LT(_MOUSE, KC_SLASH),
@@ -53,9 +44,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [_FN] = LAYOUT_split_3x5_2(
         KC_LALT, KC_F1, KC_F2, KC_F3, KC_F10,                   KC_NO, KC_NO, KC_NO, TG(_GAME), LCA(KC_DEL),
-        KC_LGUI, KC_F4, KC_F5, KC_F6, KC_F11,                   KC_NO, DM_REC1, DM_REC2, KC_NO, DF(_NON_DH),
+        KC_LGUI, KC_F4, KC_F5, KC_F6, KC_F11,                   KC_NO, DM_REC1, DM_REC2, KC_NO, KC_NO,
         KC_TRNS, KC_F7, KC_F8, KC_F9, KC_F12,                   KC_NO, KC_NO, KC_NO, KC_NO, DF(_DEFAULT),
-        LCTL_T(QK_LLCK), DF(_NON_DH),                           DM_PLY2, TG(_GAME)
+        LCTL_T(QK_LLCK), KC_TRNS,                               DM_PLY2, TG(_GAME)
     ),
     [_MOUSE] = LAYOUT_split_3x5_2(
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,            MS_WHLU, MS_WHLL, MS_UP, MS_WHLR, TG(_MOUSE),
@@ -129,20 +120,24 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     set_mods(mod_state);
                 } else if (jj_current_dynamic_macro_recording == true) {
                     dynamic_macro_stop_recording();
-                } else if (jj_current_dynamic_macro_length > 0) {
+                } else if (jj_current_dynamic_macro_length > 1) {
+                    keyrecord_t newrecord;
+                    newrecord.event.pressed = false; // why on release?
                     process_dynamic_macro(QK_DYNAMIC_MACRO_PLAY_1, record);
-                } else {
-                    if (get_alt_repeat_key_keycode()) { alt_repeat_key_invoke(&record->event); } else { repeat_key_invoke(&record->event); } // if no alt repeat, normal repeat key instead
+                } else if (get_alt_repeat_key_keycode()) { // if no alt repeat, normal repeat key instead
+                    alt_repeat_key_invoke(&record->event);
                     clear_keyboard(); // will keep spam tapping the alt-repeated-keycode otherwise
+                } else {
+                    repeat_key_invoke(&record->event);
                 }
                 return false; break;
             }
-        case SOCD_W: jj_socd(record, KC_W, KC_R, &socd_w_down, &socd_r_down); return false; break;
-        case SOCD_R: jj_socd(record, KC_R, KC_W, &socd_r_down, &socd_w_down); return false; break;
-        case SOCD_A: jj_socd(record, KC_A, KC_S, &socd_a_down, &socd_s_down); return false; break;
-        case SOCD_S: jj_socd(record, KC_S, KC_A, &socd_s_down, &socd_a_down); return false; break;
-        case SOCD_Q: jj_socd(record, KC_Q, KC_F, &socd_q_down, &socd_f_down); return false; break;
-        case SOCD_F: jj_socd(record, KC_F, KC_Q, &socd_f_down, &socd_q_down); return false; break;
+        case SOCD_W: jj_socd(record, KC_W, KC_R, &socd_w_down, socd_r_down); return false; break;
+        case SOCD_R: jj_socd(record, KC_R, KC_W, &socd_r_down, socd_w_down); return false; break;
+        case SOCD_A: jj_socd(record, KC_A, KC_S, &socd_a_down, socd_s_down); return false; break;
+        case SOCD_S: jj_socd(record, KC_S, KC_A, &socd_s_down, socd_a_down); return false; break;
+        case SOCD_Q: jj_socd(record, KC_Q, KC_F, &socd_q_down, socd_f_down); return false; break;
+        case SOCD_F: jj_socd(record, KC_F, KC_Q, &socd_f_down, socd_q_down); return false; break;
         default: return true;
     }
 };
@@ -208,8 +203,6 @@ combo_t key_combos[] = {
 // key overrides (mod morphs)
 const key_override_t alt_tab_morph = ko_make_with_layers(MOD_BIT(KC_RALT), KC_A, RALT(KC_TAB), 1 << _DEFAULT);
 const key_override_t alt_tab_shift_morph = ko_make_with_layers(MOD_BIT(KC_RALT) | MOD_BIT(KC_LSFT), KC_A, LSFT(RALT(KC_TAB)), 1 << _DEFAULT);
-const key_override_t alt_tab_morph_non_dh = ko_make_with_layers(MOD_BIT(KC_RALT), KC_A, RALT(KC_TAB), 1 << _NON_DH);
-const key_override_t alt_tab_shift_morph_non_dh = ko_make_with_layers(MOD_BIT(KC_RALT) | MOD_BIT(KC_LSFT), KC_A, LSFT(RALT(KC_TAB)), 1 << _NON_DH);
 const key_override_t colon_morph = ko_make_basic(MOD_MASK_SHIFT, KC_COLON, KC_SCLN);
 const key_override_t tilde_morph = ko_make_basic(MOD_MASK_SHIFT, KC_TILDE, KC_GRV);
 const key_override_t right_bracket_morph = ko_make_with_layers(MOD_MASK_SHIFT, KC_SLASH, KC_RIGHT_PAREN, 1 << _NUM);
@@ -217,8 +210,6 @@ const key_override_t right_bracket_morph = ko_make_with_layers(MOD_MASK_SHIFT, K
 const key_override_t *key_overrides[] = {
 	&alt_tab_morph,
 	&alt_tab_shift_morph,
-	&alt_tab_morph_non_dh,
-	&alt_tab_shift_morph_non_dh,
     &colon_morph,
     &tilde_morph,
     &right_bracket_morph,
@@ -259,6 +250,16 @@ const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
         'L', 'L', 'L', 'L', 'L',  'R', 'R', 'R', 'R', 'R',
                        '*', '*',  '*', '*'
     );
+
+/*// gaming*/
+/*socd_cleaner_t socd_opposing_pairs[] = {*/
+/*  {{KC_W, KC_S}, SOCD_CLEANER_LAST},*/
+/*  {{KC_A, KC_D}, SOCD_CLEANER_LAST},*/
+/*};*/
+/*layer_state_t layer_state_set_user(layer_state_t state) {*/
+/*  socd_cleaner_enabled = IS_LAYER_ON_STATE(state, _GAME);*/
+/*  return state;*/
+/*}*/
 
 #ifdef OTHER_KEYMAP_C
 #    include OTHER_KEYMAP_C
