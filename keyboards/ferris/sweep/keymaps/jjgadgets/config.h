@@ -44,6 +44,7 @@
 
 // space savings
 #define LAYER_STATE_8BIT // 8 layers max, change to 16bit if 16 layers
+#define EXTRA_SHORT_COMBOS // 6 keycodes max in combo trigger
 #define NO_MUSIC_MODE
 #undef LOCKING_SUPPORT_ENABLE
 #undef LOCKING_RESYNC_ENABLE

@@ -17,5 +17,5 @@ MAGIC_ENABLE = no
 SPACE_CADET_ENABLE = no
 
 # gaming
-DEBOUNCE_TYPE = sym_eager_pk
+DEBOUNCE_TYPE = asym_eager_defer_pk
 SOCD_ENABLE = yes

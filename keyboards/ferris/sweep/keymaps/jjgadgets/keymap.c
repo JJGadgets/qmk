@@ -123,7 +123,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 } else if (jj_current_dynamic_macro_length > 1) {
                     keyrecord_t newrecord;
                     newrecord.event.pressed = false; // why on release?
-                    process_dynamic_macro(QK_DYNAMIC_MACRO_PLAY_1, record);
+                    process_dynamic_macro(QK_DYNAMIC_MACRO_PLAY_1, &newrecord);
                 } else if (get_alt_repeat_key_keycode()) { // if no alt repeat, normal repeat key instead
                     alt_repeat_key_invoke(&record->event);
                     clear_keyboard(); // will keep spam tapping the alt-repeated-keycode otherwise
