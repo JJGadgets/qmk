@@ -50,4 +50,4 @@
 #undef LOCKING_RESYNC_ENABLE
 
 // gaming
-#define USB_POLLING_INTERVAL_MS 1
+#define USB_POLLING_INTERVAL_MS 1 // 1000Hz polling rate

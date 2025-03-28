@@ -1,0 +1,3 @@
+{
+    "modules": ["getreuer/tap_flow", "getreuer/socd_cleaner"]
+}

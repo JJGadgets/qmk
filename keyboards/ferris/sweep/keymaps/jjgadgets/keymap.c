@@ -252,14 +252,14 @@ const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
     );
 
 /*// gaming*/
-/*socd_cleaner_t socd_opposing_pairs[] = {*/
-/*  {{KC_W, KC_S}, SOCD_CLEANER_LAST},*/
-/*  {{KC_A, KC_D}, SOCD_CLEANER_LAST},*/
-/*};*/
-/*layer_state_t layer_state_set_user(layer_state_t state) {*/
-/*  socd_cleaner_enabled = IS_LAYER_ON_STATE(state, _GAME);*/
-/*  return state;*/
-/*}*/
+socd_cleaner_t socd_opposing_pairs[] = {
+  {{KC_W, KC_S}, SOCD_CLEANER_LAST},
+  {{KC_A, KC_D}, SOCD_CLEANER_LAST},
+};
+layer_state_t layer_state_set_user(layer_state_t state) {
+  socd_cleaner_enabled = IS_LAYER_ON_STATE(state, _GAME);
+  return state;
+}
 
 #ifdef OTHER_KEYMAP_C
 #    include OTHER_KEYMAP_C

@@ -5,7 +5,9 @@
 #    include "keymap.h"
 #endif
 // ZMK's require-prior-idle-ms (from https://github.com/qmk/qmk_firmware/issues/24262#issuecomment-2301722637)
+#ifndef REQUIRE_PRIOR_IDLE_MS
 #define REQUIRE_PRIOR_IDLE_MS 150
+#endif
 // Decision macro for mod-tap keys to override
 #define IS_HOMEROW_MOD_TAP(kc) (              \
     IS_QK_MOD_TAP(kc)                      && \
