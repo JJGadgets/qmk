@@ -241,8 +241,23 @@ uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t *record) {
     if (keycode == LSFT_T(KC_SPC)) {return 0;} // disable auto repeat for shift space
     else if (HT_THUMBS_IF(keycode)) {return 200;} else {return 175;};
 };
-#include <require-prior-idle-ms.c>
-#define REQUIRE_PRIOR_IDLE_MS 150
+/*#include <require-prior-idle-ms.c>*/
+/*#define REQUIRE_PRIOR_IDLE_MS 150*/
+uint16_t get_tap_flow(uint16_t keycode, keyrecord_t* record, uint16_t prev_keycode) {
+    switch (prev_keycode) {
+        case KC_SPC:
+        case KC_LSFT:
+        case LSFT_T(KC_SPC):
+            return 0;
+    }
+    switch (keycode) {
+        case KC_SPC:
+        case KC_LSFT:
+        case LSFT_T(KC_SPC):
+            return 0;
+    }
+    return g_tap_flow_term;
+}
 const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
     LAYOUT(
         'L', 'L', 'L', 'L', 'L',  'R', 'R', 'R', 'R', 'R',
@@ -252,18 +267,14 @@ const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
     );
 
 /*// gaming*/
-socd_cleaner_t socd_opposing_pairs[] = {
-  {{KC_W, KC_S}, SOCD_CLEANER_LAST},
-  {{KC_A, KC_D}, SOCD_CLEANER_LAST},
-};
-layer_state_t layer_state_set_user(layer_state_t state) {
-  socd_cleaner_enabled = IS_LAYER_ON_STATE(state, _GAME);
-  return state;
-}
-
-#ifdef OTHER_KEYMAP_C
-#    include OTHER_KEYMAP_C
-#endif // OTHER_KEYMAP_C
+/*socd_cleaner_t socd_opposing_pairs[] = {*/
+/*  {{KC_W, KC_S}, SOCD_CLEANER_LAST},*/
+/*  {{KC_A, KC_D}, SOCD_CLEANER_LAST},*/
+/*};*/
+/*layer_state_t layer_state_set_user(layer_state_t state) {*/
+/*  socd_cleaner_enabled = IS_LAYER_ON_STATE(state, _GAME);*/
+/*  return state;*/
+/*}*/
 
 // space savings
 #ifndef MAGIC_ENABLE
