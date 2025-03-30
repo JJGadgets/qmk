@@ -2,7 +2,6 @@
     "userspace_version": "1.1",
     "build_targets": [
         ["ferris/sweep", "jjgadgets"],
-        ["annepro2/c18", "jjgadgets"],
-        ["absolem", "jjgadgets"]
+        ["annepro2/c18", "jjgadgets"]
     ]
 }
