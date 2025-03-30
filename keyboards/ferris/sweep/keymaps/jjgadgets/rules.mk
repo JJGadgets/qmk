@@ -1,3 +1,6 @@
+# common keymap
+JJ_SPLIT = 34
+
 # features
 # DYNAMIC_TAPPING_TERM_ENABLE = yes
 COMBO_ENABLE = yes

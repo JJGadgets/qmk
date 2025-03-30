@@ -1,3 +1,5 @@
+JJ_SPLIT = no
+
 # features
 # DYNAMIC_TAPPING_TERM_ENABLE = yes
 COMBO_ENABLE = no

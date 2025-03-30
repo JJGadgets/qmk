@@ -1,3 +1,6 @@
+# common keymap
+JJ_SPLIT = 36
+
 # features
 # DYNAMIC_TAPPING_TERM_ENABLE = yes
 COMBO_ENABLE = yes
@@ -11,7 +14,7 @@ DYNAMIC_MACRO_ENABLE = yes
 # space savings
 LTO_ENABLE = yes
 MUSIC_ENABLE = no
-CONSOLE_ENABLE = yes
+CONSOLE_ENABLE = no
 COMMAND_ENABLE = no
 MAGIC_ENABLE = no
 SPACE_CADET_ENABLE = no

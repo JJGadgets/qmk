@@ -1,13 +1,5 @@
 #pragma once
 
-#define EE_HANDS
-/*#define MASTER_LEFT*/
-// detect master based on location of USB rather than voltage detection, thank my cheap ass Pro Micro for that :(
-#define SPLIT_USB_DETECT
-#define SPLIT_USB_TIMEOUT 2500
-#define SPLIT_WATCHDOG_ENABLE
-#define SPLIT_WATCHDOG_TIMEOUT 10000
-
 // default but used in macros
 #undef TAPPING_TERM
 #define TAPPING_TERM_PER_KEY
@@ -16,14 +8,6 @@
 #define HOLD_ON_OTHER_KEY_PRESS_PER_KEY
 #define CHORDAL_HOLD
 #define TAP_FLOW_TERM 150
-
-/*// Enable rapid switch from tap to hold, disables double tap hold auto-repeat.*/
-/*#define TAPPING_FORCE_HOLD*/
-
-// Auto Shift
-/*#define NO_AUTO_SHIFT_ALPHA*/
-/*#define AUTO_SHIFT_TIMEOUT TAPPING_TERM*/
-/*#define AUTO_SHIFT_NO_SETUP*/
 
 // Neutralized keycode
 #define DUMMY_MOD_NEUTRALIZER_KEYCODE KC_F18
@@ -45,10 +29,15 @@
 
 // space savings
 #define LAYER_STATE_8BIT // 8 layers max, change to 16bit if 16 layers
-/*#define EXTRA_SHORT_COMBOS // 6 keycodes max in combo trigger*/
+//#define EXTRA_SHORT_COMBOS // can't use this with repeat key tap holds
 #define NO_MUSIC_MODE
 #undef LOCKING_SUPPORT_ENABLE
 #undef LOCKING_RESYNC_ENABLE
 
 // gaming
 #define USB_POLLING_INTERVAL_MS 1 // 1000Hz polling rate
+
+// debug
+#ifdef CONSOLE_ENABLE
+#define DEBUG_MATRIX_SCAN_RATE
+#endif
