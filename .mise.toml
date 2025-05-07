@@ -8,5 +8,5 @@ pipx_uvx = true
 
 [tools]
 # python = ["3.11"]
-uv = ["0.5.26"] # faster than pipx, and can be installed with mise directly
+uv = ["0.7.3"] # faster than pipx, and can be installed with mise directly
 "pipx:qmk" = ["1.1.6"]
