@@ -10,6 +10,7 @@ MOUSEKEY_ENABLE = yes
 LAYER_LOCK_ENABLE = yes
 CAPS_WORD_ENABLE = yes
 DYNAMIC_MACRO_ENABLE = yes
+SEND_STRING_ENABLE = yes
 
 # space savings
 LTO_ENABLE = yes
@@ -20,5 +21,4 @@ MAGIC_ENABLE = no
 SPACE_CADET_ENABLE = no
 
 # gaming
-# DEBOUNCE_TYPE = asym_eager_defer_pk
 SOCD_ENABLE = yes

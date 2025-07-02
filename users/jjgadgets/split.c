@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "action.h"
 #include "action_util.h"
+#include "send_string_keycodes.h"
 #ifdef CONSOLE_ENABLE
 #include "debug.h"
 #include "print.h"
@@ -19,29 +20,64 @@
 
 enum layer_names {
     _DEFAULT,
+    /*_NORDRASSIL,*/
     _NUM,
     _FN,
-    #if MOUSE_KEYS_ENABLE == yes
+    #ifdef MOUSEKEY_ENABLE
     _MOUSE,
     #endif
     _GAME,
 };
 
-#define LT_NUM_REP LT(_NUM, QK_REPEAT_KEY)
+#ifdef SEND_STRING_ENABLE
+enum macro_keycodes {
+    // alt repeat key SFB/shortcut macros
+    M_THE = SAFE_RANGE,
+    M_ENT,
+    M_NG,
+    M_ND,
+    M_ECAUSE,
+    M_OULD,
+    M_BUT,
+    M_OR,
+    M_OU,
+    M_ICH,
+    // Excel macros
+    JJ_EXCEL_COPY_PASTE_SHEET,
+};
+#define JJ_ECPS JJ_EXCEL_COPY_PASTE_SHEET
+#endif
+
+#define JJ_THUMB_L_INNER LCTL_T(KC_ESC)
+#define JJ_THUMB_L_INNER_36_TMP LCTL_T(OSM(MOD_LCTL))
+#define JJ_THUMB_L_OUTER LSFT_T(KC_SPC)
+#define JJ_THUMB_R_OUTER MEH_T(KC_BSPC)
+#define JJ_MAGIC LT(_NUM, QK_ALT_REPEAT_KEY)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_DEFAULT] = LAYOUT(
         KC_Q, KC_W, KC_F, KC_P, KC_G,                           KC_J, KC_L, KC_U, KC_Y, KC_COLON,
         KC_A, KC_R, KC_S, KC_T, KC_D,                           KC_H, KC_N, KC_E, KC_I, KC_O,
-        LT(_FN, KC_Z), KC_X, RALT_T(KC_C), RGUI_T(KC_V), KC_B,  KC_K, LGUI_T(KC_M), LALT_T(KC_COMM), RCTL_T(KC_DOT), LT(_MOUSE, KC_SLASH),
+        LT(_FN, KC_Z), KC_X, RALT_T(KC_C), RGUI_T(KC_V), KC_B,  KC_K, LGUI_T(KC_M), LALT_T(KC_COMM), RCTL_T(KC_DOT), KC_SLASH,
 #ifdef JJ_SPLIT_36
-        LCTL_T(KC_ESC), LSFT_T(KC_SPC), KC_NO,                  KC_NO, MEH_T(KC_BSPC), LT_NUM_REP
+        /*LCTL_T(KC_ESC), LSFT_T(KC_SPC), KC_NO,                  KC_NO, MEH_T(KC_BSPC), JJ_MAGIC*/
+        JJ_THUMB_L_INNER_36_TMP, JJ_THUMB_L_OUTER, KC_ESC,      QK_REP, JJ_THUMB_R_OUTER, JJ_MAGIC // TODO: tmp: control/escape key is wonky, maybe needs unsoldering?
 #else
-        LCTL_T(KC_ESC), LSFT_T(KC_SPC),                         MEH_T(KC_BSPC), LT_NUM_REP
+        JJ_THUMB_L_INNER, JJ_THUMB_L_OUTER,                     JJ_THUMB_R_OUTER, JJ_MAGIC
 #endif
         /*LCTL_T(KC_SPC), LSFT_T(OSM(MOD_LSFT)),                  MEH_T(KC_BSPC), LT(_NUM, QK_REP)*/
         /*LCTL_T(QK_GESC), LSFT_T(OSM(MOD_LSFT)),                         MEH_T(KC_SPC), LT(_NUM, KC_BSPC)*/ // one day I'll get used to this
     ),
+/*    [_NORDRASSIL] = LAYOUT(*/
+/*        KC_Q, KC_W, KC_F, KC_P, KC_G,                           KC_J, KC_L, KC_U, KC_Y, KC_COLON,*/
+/*        KC_A, KC_R, KC_S, KC_T, KC_D,                           KC_H, KC_N, KC_E, KC_I, KC_O,*/
+/*        LT(_FN, KC_Z), KC_X, RALT_T(KC_C), RGUI_T(KC_V), KC_B,  KC_K, LGUI_T(KC_M), LALT_T(KC_COMM), RCTL_T(KC_DOT), LT(_MOUSE, KC_SLASH),*/
+/*#ifdef JJ_SPLIT_36*/
+/*        JJ_THUMB_L_INNER_36_TMP, JJ_THUMB_L_OUTER, KC_ESC,      QK_REP, JJ_THUMB_R_OUTER, JJ_MAGIC // TODO: tmp: control/escape key is wonky, maybe needs unsoldering?*/
+/*#else*/
+/*        JJ_THUMB_L_INNER, JJ_THUMB_L_OUTER,                     JJ_THUMB_R_OUTER, JJ_MAGIC*/
+/*#endif*/
+/*    ),*/
     [_NUM] = LAYOUT(
         KC_TILDE, KC_4, KC_5, KC_6, KC_COMM,                    KC_BSLS, LT(_NUM, KC_HOME), KC_UP, LT(_NUM, KC_END), KC_DEL,
         KC_0, KC_1, KC_2, KC_3, KC_DOT,                         KC_TAB, KC_LEFT, KC_DOWN, KC_RIGHT, KC_QUOTE,
@@ -54,17 +90,27 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [_FN] = LAYOUT(
         KC_LALT, KC_F1, KC_F2, KC_F3, KC_F10,                   KC_NO, KC_NO, KC_NO, TG(_GAME), LCA(KC_DEL),
-        KC_LGUI, KC_F4, KC_F5, KC_F6, KC_F11,                   KC_NO, DM_REC1, DM_REC2, KC_NO, KC_NO,
-        KC_TRNS, KC_F7, KC_F8, KC_F9, KC_F12,                   KC_NO, KC_NO, KC_NO, KC_NO, DF(_DEFAULT),
+        KC_LGUI, KC_F4, KC_F5, KC_F6, KC_F11,
+                                                                #ifdef DYNAMIC_MACRO_ENABLE
+                                                                DM_PLY1, DM_REC1, DM_RSTP, DM_REC2, DM_PLY2,
+                                                                #else
+                                                                KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
+                                                                #endif
+        KC_TRNS, KC_F7, KC_F8, KC_F9, KC_F12,
+                                                                #ifdef SEND_STRING_ENABLE
+                                                                KC_NO, JJ_ECPS, KC_NO, KC_NO, DF(_DEFAULT),
+                                                                #else
+                                                                KC_NO, KC_NO, KC_NO, KC_NO, DF(_DEFAULT),
+                                                                #endif
 #ifdef JJ_SPLIT_36
         LCTL_T(QK_LLCK), KC_TRNS, KC_NO,                        KC_NO, DM_PLY2, TG(_GAME)
 #else
         LCTL_T(QK_LLCK), KC_TRNS,                               DM_PLY2, TG(_GAME)
 #endif
     ),
-    #if MOUSE_KEYS_ENABLE == yes
+    #ifdef MOUSEKEY_ENABLE
     [_MOUSE] = LAYOUT(
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,            MS_WHLU, MS_WHLL, MS_UP, MS_WHLR, TG(_MOUSE),
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,            MS_WHLU, MS_WHLL, MS_UP, MS_WHLR, KC_BSPC,
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,            MS_WHLD, MS_LEFT, MS_DOWN, MS_RGHT, TG(_MOUSE),
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,            MS_BTN6, MS_BTN4, MS_BTN3, MS_BTN5, MS_BTN7,
 #ifdef JJ_SPLIT_36
@@ -72,8 +118,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 #else
         TG(_MOUSE), KC_TRNS,                                    MS_BTN1, MS_BTN2
 #endif
-    #endif
     ),
+    #endif
     [_GAME] = LAYOUT(
         KC_TAB, SOCD_Q, SOCD_W, SOCD_F, KC_P,                   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
         KC_G, SOCD_A, SOCD_R, SOCD_S, KC_T,                     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
@@ -87,7 +133,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 uint8_t mod_state;
-#if DYNAMIC_MACRO_ENABLE == yes
+// 2nd last key
+/*keyrecord_t jj_2nd_last_record;*/
+#ifdef DYNAMIC_MACRO_ENABLE
 // dynamic macros
 bool jj_current_dynamic_macro_recording = false;
 uint8_t jj_current_dynamic_macro_length = 0;
@@ -113,6 +161,62 @@ bool dynamic_macro_record_end_user(int8_t direction) {
 }
 #endif
 
+#ifdef REPEAT_KEY_ENABLE
+// 2nd last key
+/*bool pre_process_record_user(uint16_t keycode, keyrecord_t *record) {*/
+/*    memcpy(&jj_2nd_last_record, record, sizeof(*record));*/
+/*    jj_2nd_last_record.keycode = get_last_keycode();*/
+/*    return true;*/
+/*}*/
+// repeat key
+bool remember_last_key_user(uint16_t keycode, keyrecord_t* record, uint8_t* remembered_mods) {
+    switch (keycode) {
+        case JJ_MAGIC: return false;
+        case QK_REPEAT_KEY: return false;
+        case QK_ALT_REPEAT_KEY: return false;
+        default: return true;
+    }
+}
+// alt repeat key
+uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
+    bool shifted = (mods & MOD_MASK_SHIFT);
+    bool ctrled = (mods & MOD_MASK_CTRL);
+    switch (keycode) {
+        // shortcuts
+        case KC_TAB: if (shifted) { return KC_TAB; } else { return LSFT(KC_TAB); break; }
+        case KC_Z: if (ctrled) { return LCTL(KC_Y); break; }
+        case KC_Y: if (ctrled) { return LCTL(KC_Z); } else { return M_OU; } break;
+        // Colemak non DH SFBs
+        case KC_E: return KC_QUESTION;
+        case KC_K: return KC_N;
+        case KC_N: return KC_K;
+        case KC_U: return KC_E;
+        case KC_SLASH: if (shifted) { return KC_DOUBLE_QUOTE; }
+        case KC_S: return KC_C;
+        // common trigrams
+        #ifdef SEND_STRING_ENABLE
+        case JJ_THUMB_L_OUTER:
+        case KC_SPC:
+            return M_THE;
+        case KC_M: return M_ENT;
+        case KC_I: return M_NG;
+        case KC_A: return M_ND;
+        case KC_B: return M_ECAUSE;
+        case KC_W: return M_OULD;
+        case KC_COMMA: return M_BUT;
+        case KC_F: return M_OR;
+        /*case KC_Y: return M_OU;*/
+        case KC_H: return M_ICH; // which
+        #endif
+        // disable
+        case JJ_MAGIC: return KC_NO;
+        case QK_REPEAT_KEY: return KC_NO;
+        case QK_ALT_REPEAT_KEY: return KC_NO;
+        default: return KC_TRNS;
+    }
+}
+#endif
+
 // custom hold-tap bindings
 bool jj_tap_hold_override(keyrecord_t *therecord, bool tap_override, uint16_t tapkey, bool hold_override, uint16_t holdkey) {
     if (therecord->tap.count && therecord->event.pressed && tap_override) {
@@ -133,7 +237,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     uprintf("KL: kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n", keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
     #endif
     switch (keycode) {
-        #if SOCD_ENABLE == yes
+        case LT(_NUM, KC_HOME): return jj_tap_hold_override(record, false, KC_NO, true, KC_PGUP); break;
+        case LT(_NUM, KC_END): return jj_tap_hold_override(record, false, KC_NO, true, KC_PGDN); break;
+        #ifdef SOCD_ENABLE
         case SOCD_W: jj_socd(record, KC_W, KC_R, &socd_w_down, socd_r_down); return false; break;
         case SOCD_R: jj_socd(record, KC_R, KC_W, &socd_r_down, socd_w_down); return false; break;
         case SOCD_A: jj_socd(record, KC_A, KC_S, &socd_a_down, socd_s_down); return false; break;
@@ -141,16 +247,61 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case SOCD_Q: jj_socd(record, KC_Q, KC_F, &socd_q_down, socd_f_down); return false; break;
         case SOCD_F: jj_socd(record, KC_F, KC_Q, &socd_f_down, socd_q_down); return false; break;
         #endif
-        case LT(_NUM, KC_HOME): return jj_tap_hold_override(record, false, KC_NO, true, KC_PGUP); break;
-        case LT(_NUM, KC_END): return jj_tap_hold_override(record, false, KC_NO, true, KC_PGDN); break;
-        #if LAYER_LOCK_ENABLE == yea
+        #ifdef SEND_STRING_ENABLE // this needs to be before alt repeat key or its layer hold won't work
+        case M_THE: if (record->event.pressed) {SEND_STRING_DELAY("the ", 25); return false; break;}
+        case M_ENT: if (record->event.pressed) {SEND_STRING_DELAY("ent", 25); return false; break;}
+        case M_NG: if (record->event.pressed) {SEND_STRING_DELAY("ng", 25); return false; break;}
+        case M_ND: if (record->event.pressed) {SEND_STRING_DELAY("nd ", 25); return false; break;}
+        case M_ECAUSE: if (record->event.pressed) {SEND_STRING_DELAY("ecause ", 25); return false; break;}
+        case M_OULD: if (record->event.pressed) {SEND_STRING_DELAY("ould ", 25); return false; break;}
+        case M_BUT: if (record->event.pressed) {SEND_STRING_DELAY(" but ", 25); return false; break;}
+        case M_OR: if (record->event.pressed) {SEND_STRING_DELAY("or ", 25); return false; break;}
+        case M_OU: if (record->event.pressed) {SEND_STRING_DELAY("ou", 25); return false; break;}
+        case M_ICH: if (record->event.pressed) {SEND_STRING_DELAY("ich ", 25); return false; break;}
+        case JJ_EXCEL_COPY_PASTE_SHEET: if (record->event.pressed) {
+            SEND_STRING_DELAY((
+                SS_LCTL(SS_LSFT(SS_TAP(X_UP)))
+                SS_LCTL(SS_LSFT(SS_TAP(X_LEFT)))
+                SS_TAP(X_DOWN)
+
+                SS_LCTL(SS_LSFT(SS_TAP(X_RIGHT)))
+                SS_LCTL(SS_LSFT(SS_TAP(X_RIGHT)))
+                SS_LCTL(SS_LSFT(SS_TAP(X_RIGHT)))
+                SS_LCTL(SS_LSFT(SS_TAP(X_RIGHT)))
+                SS_LCTL(SS_LSFT(SS_TAP(X_RIGHT)))
+                SS_LCTL(SS_LSFT(SS_TAP(X_RIGHT)))
+                SS_LCTL(SS_LSFT(SS_TAP(X_RIGHT)))
+                SS_LCTL(SS_LSFT(SS_TAP(X_RIGHT)))
+                SS_LCTL(SS_LSFT(SS_TAP(X_RIGHT)))
+                SS_LCTL(SS_LSFT(SS_TAP(X_RIGHT)))
+
+                SS_LCTL(SS_LSFT(SS_TAP(X_LEFT)))
+
+                SS_LCTL(SS_LSFT(SS_TAP(X_DOWN)))
+                SS_LCTL(SS_LSFT(SS_TAP(X_DOWN)))
+                SS_LCTL(SS_LSFT(SS_TAP(X_DOWN)))
+                SS_LCTL(SS_LSFT(SS_TAP(X_DOWN)))
+                SS_LCTL(SS_LSFT(SS_TAP(X_DOWN)))
+                SS_LCTL(SS_LSFT(SS_TAP(X_DOWN)))
+                SS_LCTL(SS_LSFT(SS_TAP(X_DOWN)))
+                SS_LCTL(SS_LSFT(SS_TAP(X_DOWN)))
+                SS_LCTL(SS_LSFT(SS_TAP(X_DOWN)))
+                SS_LCTL(SS_LSFT(SS_TAP(X_DOWN)))
+
+                SS_LCTL(SS_LSFT(SS_TAP(X_UP)))
+                SS_LCTL("c")
+                SS_LALT(SS_TAP(X_TAB))
+                SS_LCTL("v")
+            ), 100); return false; break;};
+        #endif
+        #ifdef LAYER_LOCK_ENABLE
         case LCTL_T(QK_LLCK):
             if (record->tap.count && record->event.pressed) {
                 layer_lock_invert(get_highest_layer(layer_state));
                 return false; break;
             }
         #endif
-        case LT_NUM_REP:
+        case JJ_MAGIC:
             mod_state = get_mods();
             if (record->tap.count && record->event.pressed) {
                 #ifdef CONSOLE_ENABLE
@@ -162,49 +313,55 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     #ifdef CONSOLE_ENABLE
                     dprint("\nnormal repeat key condition (ctrl) reached\n");
                     #endif
-                    #if REPEAT_KEY_ENABLE == yes
+                    #ifdef REPEAT_KEY_ENABLE
                     del_mods(MOD_BIT(KC_LCTL));
                     repeat_key_invoke(&record->event);
                     set_mods(mod_state);
                     #endif
                 }
-                #if DYNAMIC_MACRO_ENABLE == yes
+                #ifdef DYNAMIC_MACRO_ENABLE
                 else if (mod_state & MOD_BIT(KC_LSFT)) {
                     #ifdef CONSOLE_ENABLE
                     dprint("\ndynamic macro clear condition reached\n");
                     #endif
-                    record.event.pressed = false; // why on release?
+                    record->event.pressed = false; // why on release?
                     process_dynamic_macro(QK_DYNAMIC_MACRO_PLAY_1, record);
-                    record.event.pressed = true;
-                    process_dynamic_macro(QK_DYNAMIC_MACRO_RECORD_STOP, record);
-                } else if (jj_current_dynamic_macro_recording == true) {
-                    #ifdef CONSOLE_ENABLE
-                    dprint("\ndynamic macro stop record condition reached\n");
-                    #endif
+                    record->event.pressed = true;
                     dynamic_macro_stop_recording();
+                /*} else if (jj_current_dynamic_macro_recording == true) {*/
+                /*    #ifdef CONSOLE_ENABLE*/
+                /*    dprint("\ndynamic macro stop record condition reached\n");*/
+                /*    #endif*/
+                /*    dynamic_macro_stop_recording();*/
                 } else if (jj_current_dynamic_macro_length > 1) {
                     #ifdef CONSOLE_ENABLE
                     dprint("\ndynamic macro stop record condition reached\n");
                     #endif
-                    record.event.pressed = false; // why on release?
-                    if (mod_state & MOD_BIT(KC_LCTL))
+                    record->event.pressed = false; // why on release?
                     process_dynamic_macro(QK_DYNAMIC_MACRO_PLAY_1, record);
                 }
                 #endif
-                #if REPEAT_KEY_ENABLE == yes
+                #ifdef REPEAT_KEY_ENABLE
+                #ifdef JJ_SPLIT_36
+                else {
+                #else
                 else if (get_alt_repeat_key_keycode()) {
+                #endif
                     #ifdef CONSOLE_ENABLE
                     dprint("\nalt repeat key condition reached\n");
                     #endif
                     alt_repeat_key_invoke(&record->event);
                     clear_keyboard(); // will keep spam tapping the alt-repeated-keycode otherwise
-                } else { // if no alt repeat, normal repeat key instead
+                }
+                #ifndef JJ_SPLIT_36
+                else {
                     #ifdef CONSOLE_ENABLE
-                    dprint("\nnormal repeat key condition (default) reached\n");
+                    dprint("\nnormal repeat key condition (fallback) reached\n");
                     #endif
                     repeat_key_invoke(&record->event);
                     clear_keyboard(); // will keep spam tapping the alt-repeated-keycode otherwise
                 }
+                #endif
                 #endif
                 return false; break;
             }
@@ -212,72 +369,37 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 };
 
-#if REPEAT_KEY_ENABLE == yes
-// repeat key
-bool remember_last_key_user(uint16_t keycode, keyrecord_t* record, uint8_t* remembered_mods) {
-    switch (keycode) {
-        case LT_NUM_REP: return false;
-        case QK_REPEAT_KEY: return false;
-        case QK_ALT_REPEAT_KEY: return false;
-        default: return true;
-    }
-}
-// alt repeat key
-uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
-    bool shifted = (mods & MOD_MASK_SHIFT);
-    bool ctrled = (mods & MOD_MASK_CTRL);
-    switch (keycode) {
-        // shortcuts
-        case KC_TAB: if (shifted) { return KC_TAB; } else { return LSFT(KC_TAB); }
-        case KC_Z: if (ctrled) { return LCTL(KC_Y); }
-        case KC_Y: if (ctrled) { return LCTL(KC_Z); }
-        // Colemak non DH SFBs
-        case KC_E: return KC_QUESTION;
-        case KC_K: return KC_N;
-        case KC_N: return KC_K;
-        case KC_U: return KC_E;
-        case KC_SLASH: if (shifted) { return KC_DOUBLE_QUOTE; }
-        case KC_S: return KC_C;
-        case LT_NUM_REP: return KC_NO;
-        case QK_REPEAT_KEY: return KC_NO;
-        case QK_ALT_REPEAT_KEY: return KC_NO;
-        default: return KC_TRNS;
-    }
-}
-#endif
-
 /*#if COMBO_ENABLE == yes*/
 #if defined(COMBO_ENABLE)
 // combos
-const uint16_t PROGMEM combo_enter[] = {KC_N, KC_E, KC_I, COMBO_END};
+const uint16_t PROGMEM combo_enter_default[] = {KC_N, KC_E, KC_I, COMBO_END};
+const uint16_t PROGMEM combo_enter_mouse[] = {MS_LEFT, MS_DOWN, MS_RGHT, COMBO_END};
 const uint16_t PROGMEM combo_mouse_default[] = {KC_L, KC_U, KC_Y, COMBO_END};
 const uint16_t PROGMEM combo_mouse_layered[] = {MS_WHLL, MS_UP, MS_WHLR, COMBO_END};
-const uint16_t PROGMEM combo_caps[] = {KC_SPC, KC_BSPC, COMBO_END};
-const uint16_t PROGMEM combo_caps2[] = {LSFT_T(KC_SPC), MEH_T(KC_BSPC), COMBO_END};
-const uint16_t PROGMEM combo_tab[] = {KC_X, KC_C, COMBO_END};
+const uint16_t PROGMEM combo_caps[] = {JJ_THUMB_L_OUTER, JJ_THUMB_R_OUTER, COMBO_END};
+const uint16_t PROGMEM combo_tab[] = {KC_W, KC_F, KC_P, COMBO_END};
+const uint16_t PROGMEM combo_one_shot_shift[] = {KC_R, KC_S, KC_T, COMBO_END};
+const uint16_t PROGMEM combo_esc[] = {KC_X, RALT_T(KC_C), RGUI_T(KC_V), COMBO_END};
+const uint16_t PROGMEM combo_backspace[] = {LGUI_T(KC_M), LALT_T(KC_COMM), RCTL_T(KC_DOT), COMBO_END};
 const uint16_t PROGMEM combo_one_shot_shift_l[] = {KC_W, KC_F, COMBO_END};
 const uint16_t PROGMEM combo_one_shot_shift_r[] = {KC_U, KC_Y, COMBO_END};
-const uint16_t PROGMEM combo_record_dynamic_macro_1_default[] = {LT_NUM_REP, KC_Y, KC_COLON, COMBO_END};
-const uint16_t PROGMEM combo_record_dynamic_macro_1_num[] = {LT_NUM_REP, LT(_NUM, KC_END), KC_DEL, COMBO_END};
-// I broke the switch on the Colemak k key lol, temporary workaround
-const uint16_t PROGMEM combo_tmp_k_default[] = {LGUI_T(KC_M), LALT_T(KC_COMM), COMBO_END};
-const uint16_t PROGMEM combo_tmp_k_num[] = {KC_RBRC, KC_MINUS, COMBO_END};
+const uint16_t PROGMEM combo_reset[] = {KC_F3, KC_F10, KC_F6, KC_F11, COMBO_END};
 // This globally defines all combos to be used
 combo_t key_combos[] = {
-    COMBO(combo_enter, KC_ENTER),
+    COMBO(combo_enter_default, KC_ENTER),
+    COMBO(combo_enter_mouse, KC_ENTER),
     COMBO(combo_mouse_default, TG(_MOUSE)),
     COMBO(combo_mouse_layered, TG(_MOUSE)),
     #if CAPS_WORD_ENABLE == yes
     COMBO(combo_caps, QK_CAPS_WORD_TOGGLE),
-    COMBO(combo_caps2, QK_CAPS_WORD_TOGGLE),
     #endif
     COMBO(combo_tab, KC_TAB),
+    COMBO(combo_one_shot_shift, OSM(MOD_LSFT)),
+    COMBO(combo_esc, KC_ESC),
+    COMBO(combo_backspace, KC_BACKSPACE),
     COMBO(combo_one_shot_shift_l, OSM(MOD_LSFT)),
     COMBO(combo_one_shot_shift_r, OSM(MOD_LSFT)),
-    COMBO(combo_record_dynamic_macro_1_default, DM_REC1),
-    // I broke the switch on the Colemak k key lol, temporary workaround
-    COMBO(combo_tmp_k_default, KC_K),
-    COMBO(combo_tmp_k_num, KC_LBRC),
+    COMBO(combo_reset, QK_BOOTLOADER),
 };
 #endif
 
@@ -302,10 +424,11 @@ const key_override_t *key_overrides[] = {
 // hold-tap config
 bool HT_THUMBS_IF(uint16_t thekeycode) {
     switch (thekeycode) {
-        case LCTL_T(KC_ESC):
-        case LSFT_T(KC_SPC):
-        case MEH_T(KC_BSPC):
-        case LT_NUM_REP:
+        case JJ_THUMB_L_INNER:
+        case JJ_THUMB_L_OUTER:
+        case JJ_THUMB_L_INNER_36_TMP:
+        case JJ_THUMB_R_OUTER:
+        case JJ_MAGIC:
         case LCTL_T(TG(_NUM)):
             return true;
         default:
@@ -325,10 +448,29 @@ uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t *record) {
     if (keycode == LSFT_T(KC_SPC)) {return 0;} // disable auto repeat for shift space
     else if (HT_THUMBS_IF(keycode)) {return 200;} else {return 175;};
 };
-/*#include <require-prior-idle-ms.c>*/
-/*#define REQUIRE_PRIOR_IDLE_MS 150*/
-uint16_t get_tap_flow(uint16_t keycode, keyrecord_t* record, uint16_t prev_keycode) {
-    if (HT_THUMBS_IF(keycode) || HT_THUMBS_IF(prev_keycode)) { return 0; } else { return 150; };
+// tap flow (require-prior-idle-ms)
+static uint16_t jj_get_tap_keycode(uint16_t keycode) { // almost able to remove this!
+  switch (keycode) {
+    case QK_MOD_TAP ... QK_MOD_TAP_MAX:
+      return QK_MOD_TAP_GET_TAP_KEYCODE(keycode);
+#ifndef NO_ACTION_LAYER
+    case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
+      return QK_LAYER_TAP_GET_TAP_KEYCODE(keycode);
+#endif  // NO_ACTION_LAYER
+  }
+  return keycode;
+}
+bool is_tap_flow_key(uint16_t keycode) {
+  switch (jj_get_tap_keycode(keycode)) {
+    // Tap Flow is enabled for the following keys. (Space removed here.)
+    case KC_A ... KC_Z:
+    case KC_DOT:
+    case KC_COMM:
+    case KC_SCLN:
+    case KC_SLSH:
+      return true;
+  }
+  return false;
 }
 const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
     LAYOUT(

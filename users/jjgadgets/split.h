@@ -1,5 +1,8 @@
 #pragma once
 
+#undef DEBOUNCE
+#define DEBOUNCE 15
+
 // default but used in macros
 #undef TAPPING_TERM
 #define TAPPING_TERM_PER_KEY
